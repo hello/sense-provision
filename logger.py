@@ -11,7 +11,6 @@ def redirect(st):
     try:
         log.write(st.rstrip()+'\n')
     except Exception as e:
-        print e
         pass
 
 def loge(st):
