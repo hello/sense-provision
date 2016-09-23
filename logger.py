@@ -1,8 +1,22 @@
+log = None
+def setlog(f):
+    global log
+    log = f
+    
+def redirect(st):
+    global log
+    print st
+    try:
+        log.write(st.rstrip()+'\n')
+    except Exception as e:
+        print e
+        pass
+
 def loge(st):
-    print "[ERROR]\t" + st
+    redirect("[ERROR]\t" + st)
     
 def logi(st):
-    print "[INFO]\t"+st
+    redirect("[INFO]\t" + st)
 
 def logs(st):
-    print "[SENSE]\t"+st
+    redirect("[SENSE]\t" + st)
