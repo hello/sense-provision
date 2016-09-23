@@ -14,13 +14,13 @@ class LOLGUI():
     def __enable(self, item):
         item['state'] = 'normal'
 
-    def __update_result(self, res):
+    def __update_result(self, res, opt_result=""):
         if res:
             self.label['text'] = "PASS"
             self.label['bg'] = 'green'
             logi("Provision PASS")
         else:
-            self.label['text'] = "FAIL"
+            self.label['text'] = "FAIL, %s"%opt_result
             self.label['bg'] = 'red'
             loge("Provision FAIL")
 
@@ -38,7 +38,8 @@ class LOLGUI():
         self.root.update()
         logi("Got Serial %s"%serial)
         try:
-            self.__update_result(provision(serial))
+            res = provision(serial)
+            self.__update_result(res[0], res[1])
         except:
             exit(1)
         self.__bind_default_action(self.__do_reset)
@@ -78,13 +79,13 @@ class LOLGUI():
         self.root.title("SenseProvision v1")
         self.label = Label(self.root, text = "Please Enter Serial", bg="white", width=70)
         self.serial_entry = Entry(self.root, width = 80)
-        self.ok_button = Button(self.root, text = "OK", command=self.__do_connect_sense)
-        self.reset_button = Button(self.root, text = "Reset", command=self.__do_reset)
+        self.ok_button = Button(self.root, text = "OK", command=self.__do_connect_sense, width = 30)
+        self.reset_button = Button(self.root, text = "Reset", command=self.__do_reset, width = 30)
         
         self.label.pack()
         self.serial_entry.pack()
-        self.ok_button.pack()
-        self.reset_button.pack()
+        self.ok_button.pack(side = LEFT)
+        self.reset_button.pack(side = RIGHT)
 
         self.__do_reset()
         
