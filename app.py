@@ -74,7 +74,7 @@ class LOLGUI():
     def __setup(self):
         global label
         self.root.title("SenseProvision")
-        self.label = Label(self.root, text = "Please Enter Serial", bg="white")
+        self.label = Label(self.root, text = "Please Enter Serial", bg="white", width=70)
         self.serial_entry = Entry(self.root, width = 80)
         self.ok_button = Button(self.root, text = "OK", command=self.__do_connect_sense)
         self.reset_button = Button(self.root, text = "Reset", command=self.__do_reset)
