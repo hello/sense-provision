@@ -7,6 +7,7 @@ class ProvisionSession:
         self.io = io
         self.sig_abort = False
         self.error = None
+        #to make provisioning modifications, add more conditions here
         self.conditions = {
             "booted":None,
             "id":None,
