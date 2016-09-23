@@ -1,7 +1,7 @@
 from serial_io import SenseIO
 from logger import loge, logi
 import re
-
+import requests
 class ProvisionSession:
     def __init__(self, io):
         self.io = io
@@ -69,7 +69,7 @@ class ProvisionSession:
         pattern = u"^got id from top ([0-9a-f:]*)"
         match = re.search(pattern, line)
         if match:
-            raw = match.group(1)
+            raw = match.group(10)
             raw = raw.replace(":","").upper()
             logi("found %s"%(raw))
             if self.conditions["id"] is None:
@@ -84,10 +84,21 @@ class ProvisionSession:
                 logi("Found Key %s"%(self.conditions["key"]))
             else:
                 self.abort("Double Key")
-        
-            
-
-if __name__ == "__main__":
+                
+def provision(sn, key):
+    res = requests.post("https://provision.hello.is/v1/provision/%s"%(sn), data = key)	
+    if res.status_code == 200:
+        logi("Status %d"%(res.status_code))
+        return True
+    loge("Provision failed %d"%(res.status_code))
+    return False
+    
+def try_provision(serial):
     session = ProvisionSession(SenseIO())
     session.print_conditions()
-    print session.parse()
+    if session.parse():
+        print provision(serial, session.conditions["key"])
+
+if __name__ == "__main__":
+    try_provision("xxx")
+  
