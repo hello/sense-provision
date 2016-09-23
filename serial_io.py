@@ -1,9 +1,9 @@
 import serial
 from serial.tools import list_ports
-from logger import loge, logi
+from logger import loge, logi, logs
 
 
-class SerialIO:
+class SenseIO:
     def __init__(self):
         self.abort = False
         try:
@@ -53,12 +53,12 @@ class SerialIO:
     def write_command(self, cmd):
         fmt_cmd = cmd.rstrip()+"\r\n"
         try:
-            if len(fmt_cmd) == p.write(fmt_cmd):
-                #logi("Input command %s Success"%cmd.rstrip())
+            if len(fmt_cmd) == self.port.write(fmt_cmd):
+                logi("Input command (%s) Success"%cmd.rstrip())
                 return True           
         except:
             pass
-        loge("Input command %s Failure"%cmd.rstrip())
+        loge("Input command (%s) Failure"%cmd.rstrip())
         return False
 
     
@@ -66,14 +66,14 @@ class SerialIO:
 def test_port():
     import signal
     sig_abort = False
-    p = SerialIO()
+    p = SenseIO()
     def signal_handler(signal, frame):
         sig_abort = True
         p.abort()
 
     while True and not sig_abort:
         line = p.read_line()
-        logi(line)
+        logs(line)
         if "SYNC_DEVICE_ID" in line:
             p.write_command("genkey")
 
