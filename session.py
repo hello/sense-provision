@@ -36,7 +36,7 @@ class ProvisionSession:
     def parse(self):
         while not self.abort and not self.is_complete():
             line = self.io.read_line()
-            print line
+            #print line
             self.__parse_boot(line)
             self.__parse_id(line)
             self.__try_genkey(line)
