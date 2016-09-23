@@ -35,6 +35,8 @@ class SenseIO:
             except Exception as e:
                 loge("Unable to Open Com Port, Error %s"%(e))
                 raise e
+        else:
+            raise Exception("No Serial Port Detected")
 
     def read_line(self, timeout = 0):
         line = []

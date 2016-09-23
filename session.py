@@ -99,8 +99,9 @@ def post_key(sn, key):
 def provision(serial):
     try:
         session = ProvisionSession(SenseIO())
-    except:
-        raise
+    except Exception as e:
+        loge("Serial Error %s"%(str(e)))
+        return False
     if session.parse():
         logi("Got Serial %s"%(serial))
         return post_key(serial, session.conditions["key"])
