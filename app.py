@@ -18,9 +18,11 @@ class LOLGUI():
         if res:
             self.label['text'] = "PASS"
             self.label['bg'] = 'green'
+            logi("Provision PASS")
         else:
             self.label['text'] = "FAIL"
             self.label['bg'] = 'red'
+            loge("Provision FAIL")
 
     def __do_provision(self):
         try:
