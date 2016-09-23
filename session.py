@@ -60,7 +60,8 @@ class ProvisionSession:
                 self.conditions["booted"] = "PASS"
 
     def __try_genkey(self, line):
-        if "Top Board Version" in line and self.conditions["key"] is None:
+        if "Top Board Version" in line and self.conditions["key"] is None \
+        and self.conditions["booted"] is not None:
              if not self.io.write_command("genkey"):
                 self.abort("Unable to genkey")
                 
