@@ -3,3 +3,6 @@ def loge(st):
     
 def logi(st):
     print "[INFO]\t"+st
+
+def logs(st):
+    print "[SENSE]\t"+st
