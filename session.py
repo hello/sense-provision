@@ -106,6 +106,7 @@ def provision(serial):
         return post_key(serial, session.conditions["key"])
     else:
         session.print_conditions()
+        return False
 
 if __name__ == "__main__":
     provision("91000101BD01163400197")
