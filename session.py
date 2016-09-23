@@ -1,11 +1,11 @@
 from serial_io import SenseIO
 from logger import loge, logi
 import re
-from timeout import timeout
+
 class ProvisionSession:
     def __init__(self, io):
         self.io = io
-        self.abort = False
+        self.sig_abort = False
         self.error = None
         self.conditions = {
             "booted":None,
@@ -31,20 +31,25 @@ class ProvisionSession:
 
     def abort(self, err = "Abort"):
         self.io.abort()
-        self.abort = True
+        self.sig_abort = True
         self.error = err
         loge(self.error)
 
     def parse(self):
-        while not self.abort and not self.is_complete():
-            line = self.io.read_line()
+        while not self.sig_abort and not self.is_complete():
+            try:
+                line = self.io.read_line(1)
+            except Exception as e:
+                self.abort("Serial Timeout")
+                break
             #print line
             self.__parse_boot(line)
             self.__parse_id(line)
             self.__try_genkey(line)
             self.__parse_key(line)
+        
         logi("Session Complete")
-        return self.is_complete and not self.abort and self.error is None
+        return self.is_complete and not self.sig_abort and self.error is None
 
     def __parse_boot(self, line):
         if "Boot" in line:

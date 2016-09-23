@@ -5,7 +5,7 @@ from logger import loge, logi, logs
 
 class SenseIO:
     def __init__(self):
-        self.abort = False
+        self.sig_abort = False
         try:
             self.__get_port()
         except:
@@ -18,7 +18,7 @@ class SenseIO:
         self.port.close()
             
     def abort(self):
-        self.abort = True
+        self.sig_abort = True
 
     def __get_port(self):
         ports = list_ports.comports()
@@ -36,15 +36,20 @@ class SenseIO:
                 loge("Unable to Open Com Port, Error %s"%(e))
                 raise e
 
-    def read_line(self):
+    def read_line(self, timeout = 0):
         line = []
+        t = 0
         while True:
             c = self.port.read()
             if len(c) is 0:
-                if self.abort:
+                if self.sig_abort:
                     return
                 else:
-                    continue
+                    t += 1
+                    if timeout > 0 and t > timeout:
+                        raise TimeoutError("IO Timeout")
+                    else:
+                        continue
             if ord(c) is not ord('\n'):
                 line.append(c)
             else:
