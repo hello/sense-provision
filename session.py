@@ -1,7 +1,7 @@
 from serial_io import SenseIO
 from logger import loge, logi
 import re
-
+from timeout import timeout
 class ProvisionSession:
     def __init__(self, io):
         self.io = io
@@ -29,9 +29,11 @@ class ProvisionSession:
                 ret = False                
         return ret
 
-    def abort(self):
+    def abort(self, err = "Abort"):
         self.io.abort()
         self.abort = True
+        self.error = err
+        loge(self.error)
 
     def parse(self):
         while not self.abort and not self.is_complete():
@@ -52,9 +54,7 @@ class ProvisionSession:
     def __try_genkey(self, line):
         if "Top Board Version" in line and self.conditions["key"] is None:
              if not self.io.write_command("genkey"):
-                self.abort = True
-                self.error = "Unable to write genkey"
-                loge(self.error)
+                self.abort("Unable to genkey")
                 
     def __parse_id(self, line):
         pattern = u"^got id from top ([0-9a-f:]*)"
@@ -74,9 +74,7 @@ class ProvisionSession:
                 self.conditions["key"] = match.group(1)
                 logi("Found Key %s"%(self.conditions["key"]))
             else:
-                self.abort = true
-                self.error = "Double Key"
-                loge(self.error)
+                self.abort("Double Key")
         
             
 
