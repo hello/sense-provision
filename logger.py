@@ -1,3 +1,4 @@
+import datetime
 log = None
 def setlog(f):
     global log
@@ -5,6 +6,7 @@ def setlog(f):
     
 def redirect(st):
     global log
+    st = "[%s]"%(datetime.datetime.now().isoformat())+st
     print st
     try:
         log.write(st.rstrip()+'\n')
