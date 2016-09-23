@@ -39,6 +39,7 @@ class ProvisionSession:
         loge(self.error)
 
     def parse(self):
+        logi("Session Start")
         while not self.is_complete():
             try:
                 line = self.io.read_line(10)
