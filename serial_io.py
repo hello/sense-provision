@@ -48,7 +48,7 @@ class SerialIO:
             if ord(c) is not ord('\n'):
                 line.append(c)
             else:
-                return "".join(line).rstrip()
+                return "".join(line).strip()
 
     def write_command(self, cmd):
         fmt_cmd = cmd.rstrip()+"\r\n"
@@ -66,15 +66,18 @@ class SerialIO:
 def test_port():
     import signal
     sig_abort = False
+    p = SerialIO()
     def signal_handler(signal, frame):
         sig_abort = True
-    p = SerialIO()
+        p.abort()
+
     while True and not sig_abort:
         line = p.read_line()
         logi(line)
         if "SYNC_DEVICE_ID" in line:
             p.write_command("genkey")
 
-test_port()
+if __name__ == "__main__":
+    test_port()
         
     
