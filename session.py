@@ -19,9 +19,7 @@ class ProvisionSession:
             status = self.conditions[key]
             if status is None:
                 logi("Condition (%s) not met"%key)
-            else:
-                logi("Condition (%s) is"%(key, self.conditions[key]))
-                
+
     def is_complete(self):
         ret = True
         for key in self.conditions:
@@ -95,10 +93,13 @@ def post_key(sn, key):
     return False
     
 def provision(serial):
-    session = ProvisionSession(SenseIO())
+    try:
+        session = ProvisionSession(SenseIO())
+    except:
+        raise
     if session.parse():
         logi("Got Serial %s"%(serial))
-        print post_key(serial, session.conditions["key"])
+        return post_key(serial, session.conditions["key"])
     else:
         session.print_conditions()
 
