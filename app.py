@@ -26,7 +26,7 @@ class LOLGUI():
 
     def __do_provision(self):
         try:
-            serial = self.serial_entry.get()
+            serial = self.serial_entry.get().strip()
             if serial == "":
                 self.__do_reset()
                 return
