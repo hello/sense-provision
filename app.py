@@ -39,9 +39,9 @@ class LOLGUI():
         logi("Got Serial %s"%serial)
         try:
             res = provision(serial)
-            self.__update_result(res[0], res[1])
+            self.__update_result(res)
         except:
-            exit(1)
+            pass
         self.__bind_default_action(self.__do_reset)
         self.__enable(self.reset_button)
         self.root.update()
