@@ -86,11 +86,14 @@ class ProvisionSession:
                 self.abort("Double Key")
                 
 def post_key(sn, key):
-    res = requests.post("https://provision.hello.is/v1/provision/%s"%(sn), data = key)	
-    if res.status_code == 200:
-        logi("Status %d"%(res.status_code))
-        return True
-    loge("Provision failed %d"%(res.status_code))
+    try:
+        res = requests.post("https://provision.hello.is/v1/provision/%s"%(sn), data = key)	
+        if res.status_code == 200:
+            logi("Status %d"%(res.status_code))
+            return True
+        loge("Provision failed %d"%(res.status_code))
+    except Exception as e:
+        loge("Connection Error %s"%(str(e)))
     return False
     
 def provision(serial):
