@@ -69,9 +69,15 @@ class ProvisionSession:
     def __parse_key(self, line):
         pattern = u"^factory key:\s*([A-F0-9]{256})"
         match = re.search(pattern, line)
-        if match and self.conditions["key"] is None:
-            self.conditions["key"] = match.group(1)
-            logi("Found Key %s"%(self.conditions["key"]))
+        if match:
+            if self.conditions["key"] is None:
+                self.conditions["key"] = match.group(1)
+                logi("Found Key %s"%(self.conditions["key"]))
+            else:
+                self.abort = true
+                self.error = "Double Key"
+                loge(self.error)
+        
             
 
 if __name__ == "__main__":
