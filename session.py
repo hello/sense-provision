@@ -42,7 +42,7 @@ class ProvisionSession:
     def parse(self):
         while not self.is_complete():
             try:
-                line = self.io.read_line(1)
+                line = self.io.read_line(10)
             except Exception as e:
                 self.abort("Serial Timeout")
                 break
@@ -69,7 +69,7 @@ class ProvisionSession:
         pattern = u"^got id from top ([0-9a-f:]*)"
         match = re.search(pattern, line)
         if match:
-            raw = match.group(10)
+            raw = match.group(1)
             raw = raw.replace(":","").upper()
             logi("found %s"%(raw))
             if self.conditions["id"] is None:
@@ -85,7 +85,7 @@ class ProvisionSession:
             else:
                 self.abort("Double Key")
                 
-def provision(sn, key):
+def post_key(sn, key):
     res = requests.post("https://provision.hello.is/v1/provision/%s"%(sn), data = key)	
     if res.status_code == 200:
         logi("Status %d"%(res.status_code))
@@ -93,12 +93,14 @@ def provision(sn, key):
     loge("Provision failed %d"%(res.status_code))
     return False
     
-def try_provision(serial):
+def provision(serial):
     session = ProvisionSession(SenseIO())
-    session.print_conditions()
     if session.parse():
-        print provision(serial, session.conditions["key"])
+        logi("Got Serial %s"%(serial))
+        print post_key(serial, session.conditions["key"])
+    else:
+        session.print_conditions()
 
 if __name__ == "__main__":
-    try_provision("xxx")
+    provision("91000101BD01163400197")
   
