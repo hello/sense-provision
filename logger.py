@@ -1,5 +1,5 @@
 def loge(st):
-    print "[ERROR] " + st
+    print "[ERROR]\t" + st
     
 def logi(st):
-    print "[INFO] "+st
+    print "[INFO]\t"+st
