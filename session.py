@@ -26,7 +26,11 @@ class ProvisionSession:
         for key in self.conditions:
             status = self.conditions[key]
             if status is None:
-                ret = False                
+                ret = False
+        if self.error:
+            ret = False
+        if self.sig_abort:
+            ret = False
         return ret
 
     def abort(self, err = "Abort"):
@@ -36,7 +40,7 @@ class ProvisionSession:
         loge(self.error)
 
     def parse(self):
-        while not self.sig_abort and not self.is_complete():
+        while not self.is_complete():
             try:
                 line = self.io.read_line(1)
             except Exception as e:
@@ -48,8 +52,8 @@ class ProvisionSession:
             self.__try_genkey(line)
             self.__parse_key(line)
         
-        logi("Session Complete")
-        return self.is_complete and not self.sig_abort and self.error is None
+        logi("Session Exit")
+        return self.is_complete()
 
     def __parse_boot(self, line):
         if "Boot" in line:
