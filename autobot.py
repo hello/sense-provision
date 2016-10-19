@@ -3,9 +3,9 @@ from logger import loge, logi
 import re
 
 """
-autobot takes a list of tuples as commands
+autobot runs a list of AutobotCommand as commands
 [
-("command", "expected", "timeout"),
+AutobotCommand("command", "expected", tieout),
 ...
 ]
 
