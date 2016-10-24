@@ -1,5 +1,5 @@
 from autobot import *
-
+import sys
 if __name__ == "__main__":
     commands = [
         TextCommand("^ bounce", "", 30),
@@ -9,5 +9,7 @@ if __name__ == "__main__":
         ProvisionCommand(),
         ]
     bot = Autobot(SenseIO(), commands, verbose = True)
-    bot.run()
+    if bot.run():
+        sys.exit(0)
+    sys.exit(1)
   

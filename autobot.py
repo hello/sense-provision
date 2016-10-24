@@ -19,9 +19,9 @@ class AutobotCommand(object):
 
     def get_status_string(self):
         if self.completed:
-            return "%s\t\t- %s"%(self.name, self.status)
+            return "%s\t- %s"%(self.status, self.name)
         else:
-            return "%s\t\t- FAIL(Incomplete)"%(self.name)
+            return "FAIL\t- (Incomplete)%s"%(self.name)
 
     def did_pass(self):
         return self.status == "PASS"
@@ -170,10 +170,10 @@ class Autobot:
                     break
         except Exception as e:
             loge("Command Error %s"%(e))
-        self.print_status()
+        return self.report_status()
 
 
-    def print_status(self):
+    def report_status(self):
         logi("Result:")
         allpass = True
         for command in self.commands:
@@ -184,6 +184,7 @@ class Autobot:
             logi("!!!PASS!!!")
         else:
             logi("!!!FAIL!!!")
+        return allpass
 
 """
 demo mode
