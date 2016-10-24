@@ -40,19 +40,15 @@ class TextCommand(AutobotCommand):
         self.timeout = timeout
         
     def execute(self, io):
-        try:
-            io.write_command(self.command)
-            while True:
-                line = io.read_line(self.timeout)
-                if line == self.expected:
-                    self.finish()
-                    return True
-        except Exception as e:
-            loge("Command Error %s"%(e))
-            pass
+        io.write_command(self.command)
+        while True:
+            line = io.read_line(self.timeout)
+            if line == self.expected:
+                self.finish()
+                return True
         return False
 
-        
+
 class Autobot:
     def __init__(self, io, commands, verbose = False):
         self.io = io
@@ -62,9 +58,12 @@ class Autobot:
         self.verbose = verbose
         
     def run(self):
-        for command in commands:
-            if not command.execute(self.io):
-                break
+        try:
+            for command in commands:
+                if not command.execute(self.io):
+                    break
+        except Exception as e:
+            loge("Command Error %s"%(e))
         self.print_status()
 
 
@@ -81,11 +80,13 @@ class Autobot:
             logi("!!!FAIL!!!")
 
 
-
+"""
+demo mode
+"""
 if __name__ == "__main__":
     commands = [
         TextCommand("connect Hello godsavethequeen 2", "SL_NETAPP_IPV4_ACQUIRED", 10),
-        TextCommand("x $is3-us-west-1.amazonaws.com/hello-firmware-public/Rev5/SLPTONES/ST007.raw $f/SLPTONES/ST007.raw", "Cmd Stream transfer exited with code -2", 30),
+        #TextCommand("x $is3-us-west-1.amazonaws.com/hello-firmware-public/Rev5/SLPTONES/ST007.raw $f/SLPTONES/ST007.raw", "Cmd Stream transfer exited with code -2", 30),
         TextCommand("disconnect", "SL_WLAN_DISCONNECT_EVENT", 10)
         ]
     bot = Autobot(SenseIO(), commands, verbose = True)
