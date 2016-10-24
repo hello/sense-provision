@@ -116,10 +116,9 @@ class IDSNCommand(AutobotCommand):
         r = requests.get("https://admin-api.hello.is/v1/key_store//sense/%s"%(self.id))
         if r.status_code == 200:
             print r.text
-            print "FFFFF"
             return False
         elif r.status_code == 404:
-            print "Still 404"
+            logi("SN not found... generating new SN")
             self.__gen_sn()
             return True
         
