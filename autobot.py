@@ -110,6 +110,7 @@ class IDSNCommand(AutobotCommand):
     def __gen_sn(self):
         template = "9100010%s%sRefurb"%(self.__color_code_to_num(self.color),
                                         self.id)
+        logi("SN: %s"%(template))
         self.sn =  template
         
     def __get_sn(self):
