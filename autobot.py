@@ -70,7 +70,7 @@ class Autobot:
     def print_status(self):
         logi("Result:")
         allpass = True
-        for command in commands:
+        for command in self.commands:
             logi("%s"%(command.get_status_string()))
             if not command.did_pass():
                 allpass = False
