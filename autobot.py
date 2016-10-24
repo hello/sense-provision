@@ -59,7 +59,7 @@ class Autobot:
         
     def run(self):
         try:
-            for command in commands:
+            for command in self.commands:
                 if not command.execute(self.io):
                     break
         except Exception as e:
