@@ -1,15 +1,8 @@
 from serial_io import SenseIO
 from logger import loge, logi
 import re
+import time
 
-"""
-autobot runs a list of AutobotCommand as commands
-[
-AutobotCommand("command", "expected", tieout),
-...
-]
-
-"""
 class AutobotCommand(object):
     def __init__(self, name = ""):
         self.completed = False #True if command has finished
@@ -20,14 +13,14 @@ class AutobotCommand(object):
         self.completed = True
         self.status = status
 
-    def execute(self, io):
+    def execute(self, io, context):
         raise Exception("execute function not implemented")
 
     def get_status_string(self):
         if self.completed:
-            return "%s - %s"%(self.name, self.status)
+            return "%s\t\t- %s"%(self.name, self.status)
         else:
-            return "%s - FAIL(Incomplete)"%(self.name)
+            return "%s\t\t- FAIL(Incomplete)"%(self.name)
 
     def did_pass(self):
         return self.status == "PASS"
@@ -39,7 +32,7 @@ class TextCommand(AutobotCommand):
         self.expected = expected
         self.timeout = timeout
         
-    def execute(self, io):
+    def execute(self, io, context):
         io.write_command(self.command)
         while True:
             line = io.read_line(self.timeout)
@@ -48,7 +41,38 @@ class TextCommand(AutobotCommand):
                 return True
         return False
 
+class DelayCommand(AutobotCommand):
+    def __init__(self, delay):
+        super(DelayCommand, self).__init__(name="Delay %ss"%str(delay))
+        self.delay = delay
 
+    def execute(self, io, context):
+        time.sleep(self.delay)
+        self.finish()
+        return True
+    
+class GenKeyCommand(AutobotCommand):
+    def __init__(self):
+        super(GenKeyCommand, self).__init__(name="Genkey")
+        
+    def __parse_key(self, line, context):
+        pattern = u"^factory key:\s*([A-F0-9]{256})"
+        match = re.search(pattern, line)
+        if match:
+            self.key = match.group(1)
+            return True            
+        return False
+    
+    def execute(self, io, context):
+        io.write_command("genkey")
+        while True:
+            line = io.read_line(10)
+            if self.__parse_key(line, context):
+                context["key"] = self.key
+                self.finish()
+                return True
+        return False
+    
 class Autobot:
     def __init__(self, io, commands, verbose = False):
         self.io = io
@@ -58,9 +82,10 @@ class Autobot:
         self.verbose = verbose
         
     def run(self):
+        context = {}
         try:
             for command in self.commands:
-                if not command.execute(self.io):
+                if not command.execute(self.io, context):
                     break
         except Exception as e:
             loge("Command Error %s"%(e))
@@ -78,7 +103,6 @@ class Autobot:
             logi("!!!PASS!!!")
         else:
             logi("!!!FAIL!!!")
-
 
 """
 demo mode
