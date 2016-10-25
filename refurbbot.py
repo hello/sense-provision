@@ -2,7 +2,7 @@ from autobot import *
 import sys
 if __name__ == "__main__":
     commands = [
-        TextCommand("^ bounce", "", 30),
+        TextCommand("^ bounce", "", 5),
         IDSNCommand(color = "B"),
         DelayCommand(2),
         GenKeyCommand(),
