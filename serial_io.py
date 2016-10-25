@@ -81,6 +81,8 @@ class SenseIO:
                 )
         term.set_rx_encoding("UTF-8")
         term.set_tx_encoding("UTF-8")
+        term.exit_character = unichr(0x1d) #ctrl ]
+        term.menu_character = unichr(0x14) #ctrl T
         term.start()
         try:
             term.join(True)
