@@ -1,8 +1,9 @@
+#!/usr/local/bin/python
 from autobot import *
 import sys
 if __name__ == "__main__":
     commands = [
-        TextCommand("^ bounce", "", 5),
+        TextCommand("^ bounce", "", 10),
         IDSNCommand(color = "B"),
         DelayCommand(2),
         GenKeyCommand(),

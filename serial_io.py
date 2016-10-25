@@ -24,7 +24,13 @@ class SenseIO:
         ports = list_ports.comports()
         if len(ports) > 0:
             try:
-                dev = ports[0].device
+                dev = None
+                for port in ports:
+                    if "COM" in port.device or "serial" in port.device:
+                        dev = port.device
+                        break
+                if dev is None:
+                    raise Exception("No Serial Port Detected")
                 logi("Opening port %s"%(dev))
                 self.port = serial.Serial(port = dev,
                                      baudrate = 115200,
