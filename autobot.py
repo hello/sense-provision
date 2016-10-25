@@ -3,6 +3,7 @@ from logger import loge, logi
 import re
 import time
 import requests
+import json
 
 class AutobotCommand(object):
     def __init__(self, name = ""):
@@ -119,15 +120,29 @@ class IDSNCommand(AutobotCommand):
         logi("SN: %s"%(template))
         self.sn =  template
         
+    def __get_auth_token(self):
+        with open("auth.txt", "rU") as fr:
+            return fr.readline().strip()
+    
     def __get_sn(self):
-        r = requests.get("https://admin-api.hello.is/v1/key_store//sense/%s"%(self.id))
+        auth = self.__get_auth_token()
+        logi("Getting SN from server...")
+        r = requests.get("https://admin-api.hello.is/v1/key_store/sense/%s"%(self.id),
+                         headers = {"Authorization": "Bearer %s"%(auth)})
         if r.status_code == 200:
-            print r.text
-            return False
+            meta = json.loads(r.text)["metadata"]
+            if "Refurb" not in meta:
+                meta = meta + "Refurb"
+            logi("SN is %s"%(meta))
+            self.sn = meta
+            return True
         elif r.status_code == 404:
             logi("SN not found... generating new SN")
             self.__gen_sn()
             return True
+        else:
+            loge(r.text)
+            return False
         
     def execute(self, io, context):
         if not self.__get_id(io):
