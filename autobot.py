@@ -27,19 +27,25 @@ class AutobotCommand(object):
         return self.status == "PASS"
 
 class TextCommand(AutobotCommand):
-    def __init__(self, command, expected, timeout):
+    def __init__(self, command, expected, timeout, fuzzy=False):
         super(TextCommand, self).__init__(name=command)
         self.command = command
         self.expected = expected
         self.timeout = timeout
+        self.fuzzy = fuzzy
         
     def execute(self, io, context):
         io.write_command(self.command)
         while True:
             line = io.read_line(self.timeout)
-            if line == self.expected:
-                self.finish()
-                return True
+            if self.fuzzy:
+                if self.expected in line:
+                    self.finish()
+                    return True
+            else:
+                if line == self.expected:
+                    self.finish()
+                    return True
         return False
 
 class DelayCommand(AutobotCommand):
