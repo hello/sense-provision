@@ -153,6 +153,17 @@ class IDSNCommand(AutobotCommand):
         context["sn"] = self.sn
         self.finish()
         return True
+
+class MinitermCommand(AutobotCommand):
+    def __init__(self):
+        super(MinitermCommand, self).__init__(name="Console")
+
+    def execute(self, io, context):
+        self.finish()
+        io.terminal()
+        return True
+
+
         
 class ProvisionCommand(AutobotCommand):
     def __init__(self):

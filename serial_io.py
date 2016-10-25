@@ -1,5 +1,6 @@
 import serial
 from serial.tools import list_ports
+from serial.tools import miniterm
 from logger import loge, logi, logs
 
 
@@ -73,6 +74,19 @@ class SenseIO:
             pass
         loge("Input command (%s) Failure"%cmd.rstrip())
         return False
+
+    def terminal(self):
+        term = miniterm.Miniterm(
+                self.port
+                )
+        term.set_rx_encoding("UTF-8")
+        term.set_tx_encoding("UTF-8")
+        term.start()
+        try:
+            term.join(True)
+        except KeyboardInterrupt:
+            pass
+        term.join()
 
     
 
