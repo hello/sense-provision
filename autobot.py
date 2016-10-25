@@ -159,9 +159,10 @@ class MinitermCommand(AutobotCommand):
         super(MinitermCommand, self).__init__(name="Console")
 
     def execute(self, io, context):
-        self.finish()
-        io.terminal()
-        return True
+        if io.terminal():
+            self.finish()
+            return True
+        return False
 
 
         
