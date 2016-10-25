@@ -27,7 +27,7 @@ class AutobotCommand(object):
         return self.status == "PASS"
 
 class TextCommand(AutobotCommand):
-    def __init__(self, command, expected, timeout, fuzzy=False):
+    def __init__(self, command, expected="", timeout=5, fuzzy=False):
         super(TextCommand, self).__init__(name=command)
         self.command = command
         self.expected = expected
