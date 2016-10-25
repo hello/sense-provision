@@ -3,7 +3,7 @@ import sys
 if __name__ == "__main__":
     commands = [
         TextCommand("^ bounce", "", 30),
-        IDSNCommand(),
+        IDSNCommand(color = "B"),
         DelayCommand(2),
         GenKeyCommand(),
         ProvisionCommand(),
