@@ -76,19 +76,20 @@ class SenseIO:
         return False
 
     def terminal(self):
-        term = miniterm.Miniterm(
-                self.port
-                )
+        ok = True
+        term = miniterm.Miniterm(self.port)
         term.set_rx_encoding("UTF-8")
         term.set_tx_encoding("UTF-8")
         term.exit_character = unichr(0x1d) #ctrl ]
         term.menu_character = unichr(0x14) #ctrl T
-        term.start()
         try:
+            term.start()
             term.join(True)
         except KeyboardInterrupt:
+            ok = False
             pass
         term.join()
+        return ok
 
     
 
