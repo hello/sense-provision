@@ -23,9 +23,34 @@ ringtone32 = [
 "STAR002.raw",
 "STAR003.raw",
 "STAR004.raw",
-#"STAR005.raw ",
+"STAR005.raw ",
 "TONE.raw"
 ]
+ringtone48 = [
+"DIG101.raw",
+"DIG102.raw",
+"DIG103.raw",
+"DIG104.raw",
+"DIG105.raw",
+"NEW101.raw",
+"NEW102.raw",
+"NEW103.raw",
+"NEW104.raw",
+"NEW105.raw",
+"NEW106.raw",
+"ORG101.raw",
+"ORG102.raw",
+"ORG103.raw",
+"ORG104.raw",
+"ORG105.raw",
+"PINK1.raw",
+"STAR101.raw",
+"STAR102.raw",
+"STAR103.raw",
+"STAR104.raw",
+"STAR105.raw ",
+"TONE1.raw"
+    ]
 slptone32 = [
 "ST001.raw",
 "ST002.raw",
@@ -39,12 +64,32 @@ slptone32 = [
 "ST011.raw",
 "ST012.raw",
 ]
+slptone48 = [
+"ST101.raw",
+"ST102.raw",
+"ST103.raw",
+"ST104.raw",
+"ST106.raw",
+"ST107.raw",
+"ST108.raw",
+"ST109.raw",
+"ST110.raw",
+"ST111.raw",
+"ST112.raw",
+]
 voice32 = [
 "VUI001.raw",
 "VUI002.raw",
 "VUI003.raw",
 "VUI004.raw",
 "VUI005.raw",
+]
+voice48 = [
+"VUI101.raw",
+"VUI102.raw",
+"VUI103.raw",
+"VUI104.raw",
+"VUI105.raw",
 ]
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "new":
