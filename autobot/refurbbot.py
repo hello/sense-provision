@@ -94,24 +94,29 @@ voice48 = [
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "new":
         commands = [
-            TextCommand("^ bounce", "", 10),
+            TextCommand("^ bounce", "freertos", 10, fuzzy = True),
+            IDSNCommand(color = "B"),
             #32
             TextCommand("cd /RINGTONE", "", 5),
-            TextCommand("ls", ringtone32, 2, fuzzy = True),
+            TextCommand("ls", ringtone32, 5, fuzzy = True),
+            DelayCommand(1),
             TextCommand("cd /SLPTONES", "", 5),
-            TextCommand("ls", slptone32, 2, fuzzy = True),
+            TextCommand("ls", slptone32, 5, fuzzy = True),
+            DelayCommand(1),
             TextCommand("cd /VOICEUI", "", 5),
-            TextCommand("ls", voice32, 2, fuzzy = True),
+            TextCommand("ls", voice32, 5, fuzzy = True),
+            DelayCommand(1),
             #48
             TextCommand("cd /RINGTO48", "", 5),
-            TextCommand("ls", ringtone48, 2, fuzzy = True),
+            TextCommand("ls", ringtone48, 5, fuzzy = True),
+            DelayCommand(1),
             TextCommand("cd /SLPTON48", "", 5),
-            TextCommand("ls", slptone48, 2, fuzzy = True),
+            TextCommand("ls", slptone48, 5, fuzzy = True),
+            DelayCommand(1),
             TextCommand("cd /VOICE48", "", 5),
-            TextCommand("ls", voice48, 2, fuzzy = True),
+            TextCommand("ls", voice48, 5, fuzzy = True),
+            DelayCommand(1),
             #the rest
-            TextCommand("^ bounce", "", 10),
-            IDSNCommand(color = "B"),
             DelayCommand(2),
             GenKeyCommand(),
             ProvisionCommand(),
