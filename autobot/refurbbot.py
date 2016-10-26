@@ -95,13 +95,27 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "new":
         commands = [
             TextCommand("^ bounce", "", 10),
+            #32
+            TextCommand("cd /RINGTONE", "", 5),
+            TextCommand("ls", ringtone32, 2, fuzzy = True),
+            TextCommand("cd /SLPTONES", "", 5),
+            TextCommand("ls", slptone32, 2, fuzzy = True),
+            TextCommand("cd /VOICEUI", "", 5),
+            TextCommand("ls", voice32, 2, fuzzy = True),
+            #48
+            TextCommand("cd /RINGTO48", "", 5),
+            TextCommand("ls", ringtone48, 2, fuzzy = True),
+            TextCommand("cd /SLPTON48", "", 5),
+            TextCommand("ls", slptone48, 2, fuzzy = True),
+            TextCommand("cd /VOICE48", "", 5),
+            TextCommand("ls", voice48, 2, fuzzy = True),
+            #the rest
+            TextCommand("^ bounce", "", 10),
             IDSNCommand(color = "B"),
             DelayCommand(2),
             GenKeyCommand(),
             ProvisionCommand(),
             TextCommand("^ dfu", "got SYNC_DEVICE_ID", 60, fuzzy = True),
-            TextCommand("^ bounce", "", 10),
-            MinitermCommand()
             ]
     else:
         commands = [
