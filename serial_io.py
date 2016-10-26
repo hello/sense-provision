@@ -1,5 +1,6 @@
 import serial
 from serial.tools import list_ports
+from serial.tools import miniterm
 from logger import loge, logi, logs
 
 
@@ -24,7 +25,13 @@ class SenseIO:
         ports = list_ports.comports()
         if len(ports) > 0:
             try:
-                dev = ports[0].device
+                dev = None
+                for port in ports:
+                    if "COM" in port.device or "serial" in port.device:
+                        dev = port.device
+                        break
+                if dev is None:
+                    raise Exception("No Serial Port Detected")
                 logi("Opening port %s"%(dev))
                 self.port = serial.Serial(port = dev,
                                      baudrate = 115200,
@@ -67,6 +74,22 @@ class SenseIO:
             pass
         loge("Input command (%s) Failure"%cmd.rstrip())
         return False
+
+    def terminal(self):
+        ok = True
+        term = miniterm.Miniterm(self.port)
+        term.set_rx_encoding("UTF-8")
+        term.set_tx_encoding("UTF-8")
+        term.exit_character = unichr(0x1d) #ctrl ]
+        term.menu_character = unichr(0x14) #ctrl T
+        try:
+            term.start()
+            term.join(True)
+        except KeyboardInterrupt:
+            ok = False
+            pass
+        term.join()
+        return ok
 
     
 
