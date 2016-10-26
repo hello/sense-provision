@@ -9,7 +9,7 @@ if __name__ == "__main__":
             DelayCommand(2),
             GenKeyCommand(),
             ProvisionCommand(),
-            TextCommand("^ dfu", "got SYNC_DEVICE_ID", 60, fuzzy = True)
+            TextCommand("^ dfu", "got SYNC_DEVICE_ID", 60, fuzzy = True),
             TextCommand("^ bounce", "", 10),
             MinitermCommand()
             ]

@@ -1,3 +1,4 @@
 .DS_Store
 *.pyc
 auth.txt
+internal_*
