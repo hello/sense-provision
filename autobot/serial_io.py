@@ -2,6 +2,8 @@ import serial
 from serial.tools import list_ports
 from serial.tools import miniterm
 from logger import loge, logi, logs
+import os
+import sys
 
 
 class SenseIO:
@@ -20,18 +22,43 @@ class SenseIO:
             
     def abort(self):
         self.sig_abort = True
+        
+    def filter_ports(self, ports):
+        if os.name == "nt":
+            return [port for port in ports if "COM" in port.device]
+        elif os.name == "posix":
+            return [port for port in ports if "serial" in port.device]
+        else:
+            return []
 
+    def select_device(self, ports):
+        if len(ports) == 0:
+            return None
+        elif len(ports) == 1:
+            return ports[0].device
+        else:
+            while True:
+                for i,d in enumerate(ports):
+                    print "%d : %s"%(i, d)
+                port = raw_input("Which Device?")
+                try:
+                    index = int(port)
+                    if not 0 <= index < len(ports):
+                        continue
+                    else:
+                        return ports[index].device
+                except ValueError:
+                    return None
+            
+        
     def __get_port(self):
         ports = list_ports.comports()
-        if len(ports) > 0:
+        filtered_ports = self.filter_ports(ports)
+        dev = self.select_device(filtered_ports)
+        if dev is None:
+            raise Exception("No Serial Port Detected")
+        else:
             try:
-                dev = None
-                for port in ports:
-                    if "COM" in port.device or "serial" in port.device:
-                        dev = port.device
-                        break
-                if dev is None:
-                    raise Exception("No Serial Port Detected")
                 logi("Opening port %s"%(dev))
                 self.port = serial.Serial(port = dev,
                                      baudrate = 115200,
@@ -42,8 +69,6 @@ class SenseIO:
             except Exception as e:
                 loge("Unable to Open Com Port, Error %s"%(e))
                 raise e
-        else:
-            raise Exception("No Serial Port Detected")
 
     def read_line(self, timeout = 0):
         line = []

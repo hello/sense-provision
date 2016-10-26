@@ -92,6 +92,6 @@ class LOLGUI():
 
     
 if __name__ == "__main__":
-    with open("./logs/%s.log"%(str(time.time())).split('.')[0], "w+") as fw:
+    with open("../logs/%s.log"%(str(time.time())).split('.')[0], "w+") as fw:
         setlog(fw)
         LOLGUI().run()

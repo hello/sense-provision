@@ -48,6 +48,32 @@ class TextCommand(AutobotCommand):
                     self.finish()
                     return True
         return False
+    
+        
+class SearchCommand(AutobotCommand):
+    def print_handler(match): #match is the regex match object
+        logi(match.string)
+        
+    def __init__(self, regex, repeat = 1, timeout = 60, handler = print_handler):
+        super(SearchCommand, self).__init__(name="%s"%(regex))
+        self.pattern = re.compile(regex)
+        self.limit = repeat
+        self.timeout = timeout
+        self.handler = handler
+
+    def execute(self, io, context):
+        found = 0
+        while self.limit != 0:
+            result = self.pattern.match(io.read_line(self.timeout))
+            if result:
+                found += 1
+                self.handler(result)
+                self.limit -= 1
+        if found > 0:
+            self.finish()
+            return True
+        return False
+            
 
 class DelayCommand(AutobotCommand):
     def __init__(self, delay):

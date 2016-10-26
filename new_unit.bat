@@ -1,1 +1,1 @@
-C:\Python27\python.exe refurbbot.py new
+C:\Python27\python.exe autobot/refurbbot.py new
