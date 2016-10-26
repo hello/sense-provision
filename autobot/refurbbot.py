@@ -23,7 +23,7 @@ ringtone32 = [
 "STAR002.raw",
 "STAR003.raw",
 "STAR004.raw",
-"STAR005.raw ",
+"STAR005.raw",
 "TONE.raw"
 ]
 ringtone48 = [
@@ -48,7 +48,7 @@ ringtone48 = [
 "STAR102.raw",
 "STAR103.raw",
 "STAR104.raw",
-"STAR105.raw ",
+"STAR105.raw",
 "TONE1.raw"
     ]
 slptone32 = [
