@@ -1,1 +1,1 @@
-C:\Python27\python.exe refurbbot.py
+C:\Python27\python.exe autobot/refurbbot.py
