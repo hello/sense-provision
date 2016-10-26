@@ -28,25 +28,42 @@ class AutobotCommand(object):
         return self.status == "PASS"
 
 class TextCommand(AutobotCommand):
+    
     def __init__(self, command, expected="", timeout=5, fuzzy=False):
         super(TextCommand, self).__init__(name=command)
         self.command = command
-        self.expected = expected
+        self.expected =  []
+        if isinstance(expected, list) or isinstance(expected, tuple):
+            self.expected.extend(expected)
+        else:
+            self.expected.append(expected)
         self.timeout = timeout
         self.fuzzy = fuzzy
-        
+
+    def match(self, expected_line, actual_line):
+        if self.fuzzy:
+            if expected_line in actual_line:
+                return True
+        else:
+            if expected_line == actual_line:
+                return True
+        return False
+    
+    def intersect(self, line):
+        for expected in self.expected:
+            if self.match(expected, line):
+                self.expected.remove(expected)
+                return True
+        return False
+            
     def execute(self, io, context):
         io.write_command(self.command)
         while True:
             line = io.read_line(self.timeout)
-            if self.fuzzy:
-                if self.expected in line:
-                    self.finish()
-                    return True
-            else:
-                if line == self.expected:
-                    self.finish()
-                    return True
+            self.intersect(line)
+            if len(self.expected) == 0:
+                self.finish()
+                return True
         return False
     
         
