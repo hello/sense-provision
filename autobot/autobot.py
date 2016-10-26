@@ -36,6 +36,10 @@ class TextCommand(AutobotCommand):
             self.expected.extend(expected)
         else:
             self.expected.append(expected)
+        if expected == "":
+            self.no_rx = True
+        else:
+             self.no_rx = False   
         self.timeout = timeout
         self.fuzzy = fuzzy
 
@@ -57,6 +61,9 @@ class TextCommand(AutobotCommand):
             
     def execute(self, io, context):
         io.write_command(self.command)
+        if self.no_rx:
+            self.finish()
+            return True
         while True:
             try:
                 line = io.read_line(self.timeout)
