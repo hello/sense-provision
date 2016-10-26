@@ -28,7 +28,6 @@ class AutobotCommand(object):
         return self.status == "PASS"
 
 class TextCommand(AutobotCommand):
-    
     def __init__(self, command, expected="", timeout=5, fuzzy=False):
         super(TextCommand, self).__init__(name=command)
         self.command = command
@@ -42,7 +41,7 @@ class TextCommand(AutobotCommand):
 
     def match(self, expected_line, actual_line):
         if self.fuzzy:
-            if expected_line in actual_line:
+            if expected_line.lower() in actual_line.lower():
                 return True
         else:
             if expected_line == actual_line:
@@ -59,11 +58,16 @@ class TextCommand(AutobotCommand):
     def execute(self, io, context):
         io.write_command(self.command)
         while True:
-            line = io.read_line(self.timeout)
-            self.intersect(line)
-            if len(self.expected) == 0:
-                self.finish()
-                return True
+            try:
+                line = io.read_line(self.timeout)
+                self.intersect(line)
+                if len(self.expected) == 0:
+                    self.finish()
+                    return True
+            except Exception as e:
+                for item in self.expected:
+                    loge("Missing: %s"%(item))
+                raise e
         return False
     
         
