@@ -7,8 +7,9 @@ import sys
 
 
 class SenseIO:
-    def __init__(self):
+    def __init__(self, verbose = False):
         self.sig_abort = False
+        self.verbose = verbose
         try:
             self.__get_port()
         except:
@@ -93,7 +94,8 @@ class SenseIO:
         fmt_cmd = cmd.rstrip()+"\r\n"
         try:
             if len(fmt_cmd) == self.port.write(fmt_cmd):
-                logi("Input command (%s) Success"%cmd.rstrip())
+                if self.verbose:
+                    logi("Input command (%s) Success"%cmd.rstrip())
                 return True           
         except:
             pass
