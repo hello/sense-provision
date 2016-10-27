@@ -77,30 +77,44 @@ class TextCommand(AutobotCommand):
                 raise e
         return False
     
-        
+class RepeatCommand(AutobotCommand):
+    def __init__(self, commands = [], repeat = 1):
+        super(RepeatCommand, self).__init__(name="Repeat %d"%(repeat))
+        self.commands = commands
+        self.repeat = repeat
+
+    def execute(self, io, context):
+        while self.repeat != 0:
+            for command in self.commands:
+                if not command.execute(io, context):
+                    return False
+            self.repeat -= 1
+        self.finish()
+        return True
+
 class SearchCommand(AutobotCommand):
     def print_handler(match): #match is the regex match object
         logi(match.string)
         
-    def __init__(self, regex, repeat = 1, timeout = 60, handler = print_handler):
+    def __init__(self, regex, timeout = 60, handler = print_handler):
         super(SearchCommand, self).__init__(name="%s"%(regex))
         self.pattern = re.compile(regex)
-        self.limit = repeat
         self.timeout = timeout
         self.handler = handler
 
     def execute(self, io, context):
-        found = 0
-        while self.limit != 0:
-            result = self.pattern.match(io.read_line(self.timeout))
-            if result:
-                found += 1
-                self.handler(result)
-                self.limit -= 1
-        if found > 0:
-            self.finish()
-            return True
-        return False
+        while True:
+            try:
+                line = io.read_line(self.timeout)
+                result = self.pattern.match(line)
+                if result:
+                    self.handler(result)
+                    self.finish()
+                    return True
+                    break
+            except Exception as e:
+                print e
+                return False
             
 
 class DelayCommand(AutobotCommand):
