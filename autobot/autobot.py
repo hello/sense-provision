@@ -96,7 +96,7 @@ class SearchCommand(AutobotCommand):
     def print_handler(match): #match is the regex match object
         logi(match.string)
         
-    def __init__(self, regex, timeout = 60, handler = print_handler):
+    def __init__(self, regex, handler = print_handler,  timeout = 60):
         super(SearchCommand, self).__init__(name="%s"%(regex))
         self.pattern = re.compile(regex)
         self.timeout = timeout
