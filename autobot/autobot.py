@@ -60,7 +60,7 @@ class TextCommand(AutobotCommand):
         return False
             
     def execute(self, io, context):
-        io.write_command(self.command)
+        io.write_command(str(self.command))
         if self.no_rx:
             self.finish()
             return True
