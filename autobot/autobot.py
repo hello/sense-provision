@@ -78,10 +78,10 @@ class Text(AutobotCommand):
         return False
     
 class Repeat(AutobotCommand):
-    def __init__(self, commands = [], repeat = 1):
+    def __init__(self, times = 1, commands = []):
         super(Repeat, self).__init__(name="Repeat %d"%(repeat))
         self.commands = commands
-        self.repeat = repeat
+        self.repeat = times
 
     def execute(self, io, context):
         while self.repeat != 0:
