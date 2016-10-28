@@ -93,10 +93,11 @@ class RepeatCommand(AutobotCommand):
         return True
 
 class SearchCommand(AutobotCommand):
-    def print_handler(match): #match is the regex match object
-        logi(match.string)
+    class PrintHandler:
+        def on_match(match): #match is the regex match object
+            logi(match.string)
         
-    def __init__(self, regex, handler = print_handler,  timeout = 60):
+    def __init__(self, regex, handler = PrintHandler,  timeout = 60):
         super(SearchCommand, self).__init__(name="%s"%(regex))
         self.pattern = re.compile(regex)
         self.timeout = timeout
@@ -108,7 +109,7 @@ class SearchCommand(AutobotCommand):
                 line = io.read_line(self.timeout)
                 result = self.pattern.match(line)
                 if result:
-                    self.handler(result)
+                    self.handler.on_match(result)
                     self.finish()
                     return True
                     break
