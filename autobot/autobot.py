@@ -79,9 +79,9 @@ class Text(AutobotCommand):
     
 class Repeat(AutobotCommand):
     def __init__(self, times, *args):
-        super(Repeat, self).__init__(name="Repeat %d"%(times))
+        super(Repeat, self).__init__(name="Repeat %d"%(int(times)))
         self.commands = args
-        self.repeat = times
+        self.repeat = int(times)
 
     def execute(self, io, context):
         while self.repeat != 0:
