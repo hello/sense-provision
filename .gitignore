@@ -2,3 +2,4 @@
 *.pyc
 auth.txt
 internal_*
+_*
