@@ -94,37 +94,36 @@ voice48 = [
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "new":
         commands = [
-            TextCommand("^ bounce", "freertos", 10, fuzzy = True),
-            IDSNCommand(color = "B"),
+            Text("^ bounce", "freertos", 10, fuzzy = True),
+            DeviceInfo(color = "B"),
             #32
-            TextCommand("cd /RINGTONE", "", 5),
-            TextCommand("ls", ringtone32, 5, fuzzy = True),
-            DelayCommand(1),
-            TextCommand("cd /SLPTONES", "", 5),
-            TextCommand("ls", slptone32, 5, fuzzy = True),
-            DelayCommand(1),
-            TextCommand("cd /VOICEUI", "", 5),
-            TextCommand("ls", voice32, 5, fuzzy = True),
-            DelayCommand(1),
+            Text("cd /RINGTONE", ""),
+            Text("ls", ringtone32, 5, fuzzy = True),
+            Delay(1),
+            Text("cd /SLPTONES", ""),
+            Text("ls", slptone32, 5, fuzzy = True),
+            Delay(1),
+            Text("cd /VOICEUI", ""),
+            Text("ls", voice32, 5, fuzzy = True),
+            Delay(1),
             #48
-            TextCommand("cd /RINGTO48", "", 5),
-            TextCommand("ls", ringtone48, 5, fuzzy = True),
-            DelayCommand(1),
-            TextCommand("cd /SLPTON48", "", 5),
-            TextCommand("ls", slptone48, 5, fuzzy = True),
-            DelayCommand(1),
-            TextCommand("cd /VOICE48", "", 5),
-            TextCommand("ls", voice48, 5, fuzzy = True),
-            DelayCommand(1),
+            Text("cd /RINGTO48", ""),
+            Text("ls", ringtone48, 5, fuzzy = True),
+            Delay(1),
+            Text("cd /SLPTON48", ""),
+            Text("ls", slptone48, 5, fuzzy = True),
+            Delay(1),
+            Text("cd /VOICE48", ""),
+            Text("ls", voice48, 5, fuzzy = True),
+            Delay(1),
             #the rest
-            DelayCommand(2),
-            GenKeyCommand(),
-            ProvisionCommand(),
-            TextCommand("^ dfu", "got SYNC_DEVICE_ID", 60, fuzzy = True),
+            Delay(1),
+            Provision(),
+            Text("^ dfu", "got SYNC_DEVICE_ID", 60, fuzzy = True),
             ]
     else:
         commands = [
-            MinitermCommand()
+            Terminal()
             ]
             
     bot = Autobot(SenseIO(), commands, verbose = True)

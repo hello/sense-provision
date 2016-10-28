@@ -27,9 +27,9 @@ class AutobotCommand(object):
     def did_pass(self):
         return self.status == "PASS"
 
-class TextCommand(AutobotCommand):
+class Text(AutobotCommand):
     def __init__(self, command, expected="", timeout=5, fuzzy=False):
-        super(TextCommand, self).__init__(name=command)
+        super(Text, self).__init__(name=command)
         self.command = command
         self.expected =  []
         if isinstance(expected, list) or isinstance(expected, tuple):
@@ -77,9 +77,9 @@ class TextCommand(AutobotCommand):
                 raise e
         return False
     
-class RepeatCommand(AutobotCommand):
+class Repeat(AutobotCommand):
     def __init__(self, commands = [], repeat = 1):
-        super(RepeatCommand, self).__init__(name="Repeat %d"%(repeat))
+        super(Repeat, self).__init__(name="Repeat %d"%(repeat))
         self.commands = commands
         self.repeat = repeat
 
@@ -92,13 +92,13 @@ class RepeatCommand(AutobotCommand):
         self.finish()
         return True
 
-class SearchCommand(AutobotCommand):
+class Search(AutobotCommand):
     class PrintHandler:
         def on_match(match): #match is the regex match object
             logi(match.string)
         
     def __init__(self, regex, handler = PrintHandler,  timeout = 60):
-        super(SearchCommand, self).__init__(name="%s"%(regex))
+        super(Search, self).__init__(name="%s"%(regex))
         self.pattern = re.compile(regex)
         self.timeout = timeout
         self.handler = handler
@@ -118,42 +118,19 @@ class SearchCommand(AutobotCommand):
                 return False
             
 
-class DelayCommand(AutobotCommand):
+class Delay(AutobotCommand):
     def __init__(self, delay):
-        super(DelayCommand, self).__init__(name="Delay %ss"%str(delay))
+        super(Delay, self).__init__(name="Delay %ss"%str(delay))
         self.delay = delay
 
     def execute(self, io, context):
         time.sleep(self.delay)
         self.finish()
         return True
-    
-class GenKeyCommand(AutobotCommand):
-    def __init__(self):
-        super(GenKeyCommand, self).__init__(name="Genkey")
-        
-    def __parse_key(self, line, context):
-        pattern = u"^factory key:\s*([A-F0-9]{256})"
-        match = re.search(pattern, line)
-        if match:
-            self.key = match.group(1)
-            return True            
-        return False
-    
-    def execute(self, io, context):
-        io.write_command("genkey")
-        while True:
-            line = io.read_line(10)
-            if self.__parse_key(line, context):
-                context["key"] = self.key
-                self.finish()
-                return True
-        return False
-
-        
-class IDSNCommand(AutobotCommand):
+           
+class DeviceInfo(AutobotCommand):
     def __init__(self, color="B"):
-        super(IDSNCommand, self).__init__(name="Get ID & SN")
+        super(DeviceInfo, self).__init__(name="Get ID & SN")
         
         self.color = color
 
@@ -223,9 +200,9 @@ class IDSNCommand(AutobotCommand):
         self.finish()
         return True
 
-class MinitermCommand(AutobotCommand):
+class Terminal(AutobotCommand):
     def __init__(self):
-        super(MinitermCommand, self).__init__(name="Console")
+        super(Terminal, self).__init__(name="Console")
 
     def execute(self, io, context):
         if io.terminal():
@@ -235,10 +212,28 @@ class MinitermCommand(AutobotCommand):
 
 
         
-class ProvisionCommand(AutobotCommand):
+class Provision(AutobotCommand):
     def __init__(self):
-        super(ProvisionCommand, self).__init__(name="Provision")
+        super(Provision, self).__init__(name="Provision")
         
+    def __parse_key(self, line, context):
+        pattern = u"^factory key:\s*([A-F0-9]{256})"
+        match = re.search(pattern, line)
+        if match:
+            self.key = match.group(1)
+            return True            
+        return False
+
+    def genkey(self, io, context):
+        io.write_command("genkey")
+        while True:
+            line = io.read_line(10)
+            if self.__parse_key(line, context):
+                context["key"] = self.key
+                self.finish()
+                return True
+        return False
+    
     def __post_key(self, sn, key):
         try:
             res = requests.post("https://provision.hello.is/v1/provision/%s"%(sn), data = key)	
@@ -251,6 +246,7 @@ class ProvisionCommand(AutobotCommand):
         return False
     
     def execute(self, io, context):
+        self.genkey(io, context)
         if self.__post_key(context["sn"], context["key"]):
             self.finish()
             return True
@@ -275,7 +271,6 @@ class Autobot:
             loge("Command Error %s"%(e))
         return self.report_status()
 
-
     def report_status(self):
         logi("Result:")
         allpass = True
@@ -293,11 +288,5 @@ class Autobot:
 demo mode
 """
 if __name__ == "__main__":
-    commands = [
-        TextCommand("connect Hello godsavethequeen 2", "SL_NETAPP_IPV4_ACQUIRED", 10),
-        #TextCommand("x $is3-us-west-1.amazonaws.com/hello-firmware-public/Rev5/SLPTONES/ST007.raw $f/SLPTONES/ST007.raw", "Cmd Stream transfer exited with code -2", 30),
-        TextCommand("disconnect", "SL_WLAN_DISCONNECT_EVENT", 10)
-        ]
-    bot = Autobot(SenseIO(), commands, verbose = True)
-    bot.run()
+    logi("Tests Relocated")
   
