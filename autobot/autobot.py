@@ -94,10 +94,10 @@ class Repeat(AutobotCommand):
 
 class Search(AutobotCommand):
     class PrintHandler:
-        def on_match(match): #match is the regex match object
+        def on_match(self, match): #match is the regex match object
             logi(match.string)
         
-    def __init__(self, regex, handler = PrintHandler,  timeout = 60):
+    def __init__(self, regex, handler = PrintHandler(),  timeout = 60):
         super(Search, self).__init__(name="%s"%(regex))
         self.pattern = re.compile(regex)
         self.timeout = timeout
