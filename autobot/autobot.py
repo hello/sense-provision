@@ -78,9 +78,9 @@ class Text(AutobotCommand):
         return False
     
 class Repeat(AutobotCommand):
-    def __init__(self, times = 1, commands = []):
-        super(Repeat, self).__init__(name="Repeat %d"%(repeat))
-        self.commands = commands
+    def __init__(self, times, *args):
+        super(Repeat, self).__init__(name="Repeat %d"%(times))
+        self.commands = args
         self.repeat = times
 
     def execute(self, io, context):
