@@ -164,7 +164,7 @@ class DeviceInfo(AutobotCommand):
         template = "9100010%s%sRefurb"%(self.__color_code_to_num(self.color),
                                         self.id)
         logi("SN: %s"%(template))
-        self.sn =  template
+        return template
         
     def __get_auth_token(self):
         with open("auth.txt", "rU") as fr:
@@ -177,14 +177,18 @@ class DeviceInfo(AutobotCommand):
                          headers = {"Authorization": "Bearer %s"%(auth)})
         if r.status_code == 200:
             meta = json.loads(r.text)["metadata"]
+            template = "9100"
             if "Refurb" not in meta:
                 meta = meta + "Refurb"
-            logi("SN is %s"%(meta))
-            self.sn = meta
+            elif template not in meta:
+                self.sn = self.__gen_sn()
+            else:
+                logi("SN is %s"%(meta))
+                self.sn = meta
             return True
         elif r.status_code == 404:
             logi("SN not found... generating new SN")
-            self.__gen_sn()
+            self.sn = self.__gen_sn()
             return True
         else:
             loge(r.text)
