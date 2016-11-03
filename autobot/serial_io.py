@@ -4,6 +4,7 @@ from serial.tools import miniterm
 from logger import loge, logi, logs
 import os
 import sys
+import time
 
 
 class SenseIO:
@@ -74,6 +75,7 @@ class SenseIO:
     def read_line(self, timeout = 0):
         line = []
         t = 0
+        start_time = time.time()
         while True:
             c = self.port.read()
             if len(c) is 0:
@@ -82,6 +84,8 @@ class SenseIO:
                 else:
                     t += 1
                     if timeout > 0 and t > timeout:
+                        raise TimeoutError("IO Timeout")
+                    elif time.time() - start_time > timeout:
                         raise TimeoutError("IO Timeout")
                     else:
                         continue
