@@ -81,7 +81,7 @@ class SenseIO:
                 if self.sig_abort:
                     return
                 else:
-                    if time.time() - start_time > timeout:
+                    if timeout > 0 and (time.time() - start_time > timeout):
                         raise TimeoutError("IO Timeout")
                     else:
                         continue
