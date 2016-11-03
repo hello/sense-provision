@@ -74,7 +74,6 @@ class SenseIO:
 
     def read_line(self, timeout = 0):
         line = []
-        t = 0
         start_time = time.time()
         while True:
             c = self.port.read()
@@ -82,10 +81,7 @@ class SenseIO:
                 if self.sig_abort:
                     return
                 else:
-                    t += 1
-                    if timeout > 0 and t > timeout:
-                        raise TimeoutError("IO Timeout")
-                    elif time.time() - start_time > timeout:
+                    if time.time() - start_time > timeout:
                         raise TimeoutError("IO Timeout")
                     else:
                         continue
