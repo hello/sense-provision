@@ -15,25 +15,26 @@ PROJECT_ROOT = os.path.join(
         )
 class AutobotCommand(object):
     def __init__(self, name = ""):
-        self.completed = False #True if command has finished
-        self.status = "FAIL"
+        self.passed = False
         self.name = name
 
-    def finish(self, status = "PASS"):
-        self.completed = True
-        self.status = status
+    def fail_test(self):
+        self.passed = False
+
+    def pass_test(self):
+        self.passed = True
 
     def execute(self, io, context):
         raise Exception("execute function not implemented")
 
     def get_status_string(self):
-        if self.completed:
-            return "%s\t- %s"%(self.status, self.name)
+        if self.passed:
+            return "PASS\t- %s"%(self.name)
         else:
-            return "FAIL\t- (Incomplete)%s"%(self.name)
+            return "FAIL\t- %s"%(self.name)
 
     def did_pass(self):
-        return self.status == "PASS"
+        return self.passed
 
 class Text(AutobotCommand):
     def __init__(self, command, expected="", timeout=5, fuzzy=True):
@@ -70,21 +71,21 @@ class Text(AutobotCommand):
     def execute(self, io, context):
         io.write_command(str(self.command))
         if self.no_rx:
-            self.finish()
-            return True
+            self.pass_test()
+            return
+
         while True:
             line = io.readline(self.timeout)
             if line == None:
-                return False
+                return
 
             self.intersect(line)
             if len(self.expected) == 0:
-                self.finish()
-                return True
+                self.pass_test()
+                return
 
         for item in self.expected:
             loge("Missing: %s"%(item))
-        return False
     
 class Repeat(AutobotCommand):
     def __init__(self, times, *args):
@@ -95,13 +96,13 @@ class Repeat(AutobotCommand):
     def execute(self, io, context):
         while self.repeat != 0:
             for command in self.commands:
-                res = command.execute(io, context)
+                command.execute(io, context)
                 logi("%s"%(command.get_status_string()))
-                if not res:
-                    return False
+                if not command.did_pass():
+                    return
             self.repeat -= 1
-        self.finish()
-        return True
+
+        self.pass_test()
 
 class Search(AutobotCommand):
     class PrintHandler:
@@ -125,11 +126,8 @@ class Search(AutobotCommand):
             result = self.pattern.match(line)
             if result:
                 self.handler.on_match(result)
-                self.finish()
-                return True
+                self.pass_test()
 
-        return False
-            
 class Conditional(AutobotCommand):
     NONE = 0
     ANY = 1
@@ -144,20 +142,20 @@ class Conditional(AutobotCommand):
         pass_num = 0
         total_commands = len(self.commands)
         for command in self.commands:
-            res = command.execute(io, context)
+            command.execute(io, context)
             logi("%s"%(command.get_status_string()))
-            if res:
+            if command.did_pass():
                 pass_num += 1
             elif self.cond == self.ALL:
-                return False
+                break
 
         #any returns true if any condition is true
-        if self.cond == self.ANY and pass_num > 0:
-            return True
+        if self.cond == self.NONE:
+            self.pass_test()
+        elif self.cond == self.ANY and pass_num > 0:
+            self.pass_test()
         else:
-            return False
-
-        return True
+            self.fail_test()
 
 class Delay(AutobotCommand):
     def __init__(self, delay):
@@ -166,8 +164,7 @@ class Delay(AutobotCommand):
 
     def execute(self, io, context):
         time.sleep(self.delay)
-        self.finish()
-        return True
+        self.pass_test()
            
 class DeviceInfo(AutobotCommand):
     def __init__(self, color="B"):
@@ -244,7 +241,7 @@ class DeviceInfo(AutobotCommand):
             return False
         context["id"] = self.id
         context["sn"] = self.sn
-        self.finish()
+        self.pass_test()
         return True
 
 class Terminal(AutobotCommand):
@@ -253,10 +250,7 @@ class Terminal(AutobotCommand):
 
     def execute(self, io, context):
         if io.terminal():
-            self.finish()
-            return True
-        return False
-
+            self.pass_test()
 
         
 class Provision(AutobotCommand):
@@ -280,7 +274,7 @@ class Provision(AutobotCommand):
 
             if self.__parse_key(line, context):
                 context["key"] = self.key
-                self.finish()
+                self.pass_test()
                 return True
         return False
     
@@ -298,47 +292,42 @@ class Provision(AutobotCommand):
     def execute(self, io, context):
         self.genkey(io, context)
         if self.__post_key(context["sn"], context["key"]):
-            self.finish()
-            return True
-        return False
+            self.pass_test()
         
 class Sound(AutobotCommand):
-    class DefaultAudioObject():
-        def __str__(self):
-            logi("Implement an object with the __str__ function")
-            return os.path.join(
-                    PROJECT_ROOT,
-                    "autobot",
-                    "oksense.wav",
-                    )
-
-    def __init__(self, aud = DefaultAudioObject(), verbose = False):
+    def __init__(self, aud, verbose = False):
         super(Sound, self).__init__(name="Sound")
         self.aud = aud
 
     def play_audio(self):
         CHUNK = 1024
-        player = pyaudio.PyAudio()
-        wf = wave.open(str(self.aud), 'rb')
-        stream = player.open(
-                format = player.get_format_from_width(wf.getsampwidth()),
-                channels = wf.getnchannels(),
-                rate = wf.getframerate(),
-                output = True)
-        data = wf.readframes(CHUNK)
-        while data != '':
-            stream.write(data)
+        try:
+            f = str(self.aud)
+            player = pyaudio.PyAudio()
+            logi("Playing %s"%(f))
+            wf = wave.open(f, 'rb')
+            stream = player.open(
+                    format = player.get_format_from_width(wf.getsampwidth()),
+                    channels = wf.getnchannels(),
+                    rate = wf.getframerate(),
+                    output = True)
             data = wf.readframes(CHUNK)
+            while data != '':
+                stream.write(data)
+                data = wf.readframes(CHUNK)
 
-        stream.stop_stream()
-        stream.close()
-        player.terminate()
+            stream.stop_stream()
+            stream.close()
+            player.terminate()
+            return True
+        except Exception as e:
+            return False
 
     def execute(self, io, context):
-        self.play_audio()
-        self.finish()
-        return True
-
+        if self.play_audio():
+            self.pass_test()
+        else:
+            self.fail_test()
          
 class Autobot:
     def __init__(self, io, commands, verbose = False):
@@ -352,9 +341,9 @@ class Autobot:
         context = {}
         try:
             for command in self.commands:
-                res = command.execute(self.io, context)
+                command.execute(self.io, context)
                 logi("%s"%(command.get_status_string()))
-                if not res:
+                if not command.did_pass():
                     break
         except Exception as e:
             loge("Command Error %s"%(e))
