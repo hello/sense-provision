@@ -115,9 +115,12 @@ class Search(AutobotCommand):
         self.handler = handler
 
     def execute(self, io, context):
+        start_time = time.time()
         while True:
             line = io.readline(self.timeout)
             if line == None:
+                break
+            if self.timeout > 0 and (time.time() - start_time > self.timeout):
                 break
             result = self.pattern.match(line)
             if result:
