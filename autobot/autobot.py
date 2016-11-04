@@ -180,6 +180,7 @@ class DeviceInfo(AutobotCommand):
             template = "9100"
             if "Refurb" not in meta:
                 meta = meta + "Refurb"
+                self.sn = meta
             elif template not in meta:
                 self.sn = self.__gen_sn()
             else:
