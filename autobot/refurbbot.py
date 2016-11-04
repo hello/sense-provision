@@ -126,7 +126,7 @@ if __name__ == "__main__":
             Terminal()
             ]
             
-    bot = Autobot(SenseIO(), commands, verbose = True)
+    bot = Autobot(SenseIO(verbose = True), commands, verbose = True)
     if bot.run():
         sys.exit(0)
     sys.exit(1)
