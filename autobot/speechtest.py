@@ -18,21 +18,31 @@ class OKCounter:
     def on_match(self, match): #match is the regex match object
         self.passcount += 1
 
+class Counter(AutobotCommand):
+    def __init__(self):
+        super(Counter, self).__init__(name="Counter")
+        self.count = 0
+
+    def execute(self, io, context):
+        self.count += 1
+        return True
+
 okcounter = OKCounter()
-testcount = 3
+totalcounter = Counter()
 
 commands = [
         Text("boot"),
-        Repeat( testcount,
-            Conditional(Conditional.ANY,
+        Repeat( -1,
+            totalcounter,
+            Conditional(Conditional.ALL,
                 Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
-                Search("OKAY SENSE", handler = okcounter, timeout = 1),
+                Search("OKAY SENSE", handler = okcounter, timeout = 4),
                 ),
             )
         ]
 
 Autobot(SenseIO(), commands).run()
-logi("Passed %d Out of %d tests, %f"%(okcounter.passcount, testcount, okcounter.passcount * 1.0/testcount * 100))
+logi("Passed %d Out of %d tests, %f"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100))
 
 
 
