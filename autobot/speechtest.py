@@ -33,12 +33,14 @@ totalcounter = Counter()
 commands = [
         Text("boot"),
         Repeat( -1,
-            totalcounter,
             Conditional(Conditional.ALL,
                 Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
+                totalcounter,
                 Search("OKAY SENSE", handler = okcounter, timeout = 4),
+                Search("stop speech", timeout = 20),
+                Delay(3.0),
                 ),
-            )
+            ),
         ]
 
 Autobot(SenseIO(), commands).run()
