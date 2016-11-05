@@ -33,8 +33,8 @@ totalcounter = Counter()
 commands = [
         Text("boot"),
         Repeat( -1,
-            Conditional(Conditional.ALL,
-                Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
+            Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
+            Conditional(Conditional.ANY,
                 totalcounter,
                 Search("OKAY SENSE", handler = okcounter, timeout = 4),
                 Search("stop speech", timeout = 20),
