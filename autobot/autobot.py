@@ -85,7 +85,7 @@ class Repeat(AutobotCommand):
         while self.repeat != 0:
             for command in self.commands:
                 res = command.execute(io, context)
-                logi("%s"%(command.get_status_string(res)))
+                # logi("%s"%(command.get_status_string(res)))
                 if not res:
                     return False
             self.repeat -= 1
@@ -336,7 +336,8 @@ class Autobot:
         try:
             for command in self.commands:
                 res = command.execute(self.io, context)
-                logi("%s"%(command.get_status_string(res)))
+                if self.verbose:
+                    logi("%s"%(command.get_status_string(res)))
                 if res:
                     tests_passed += 1
                 else:
