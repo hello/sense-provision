@@ -4,28 +4,27 @@ import re
 import time
 import requests
 import json
+import pyaudio
+import wave
+import os
 
+
+PROJECT_ROOT = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        ".."
+        )
 class AutobotCommand(object):
     def __init__(self, name = ""):
-        self.completed = False #True if command has finished
-        self.status = "FAIL"
         self.name = name
-
-    def finish(self, status = "PASS"):
-        self.completed = True
-        self.status = status
 
     def execute(self, io, context):
         raise Exception("execute function not implemented")
 
-    def get_status_string(self):
-        if self.completed:
-            return "%s\t- %s"%(self.status, self.name)
+    def get_status_string(self, passed):
+        if passed:
+            return "PASS\t- %s"%(self.name)
         else:
-            return "FAIL\t- (Incomplete)%s"%(self.name)
-
-    def did_pass(self):
-        return self.status == "PASS"
+            return "FAIL\t- %s"%(self.name)
 
 class Text(AutobotCommand):
     def __init__(self, command, expected="", timeout=5, fuzzy=True):
@@ -62,20 +61,19 @@ class Text(AutobotCommand):
     def execute(self, io, context):
         io.write_command(str(self.command))
         if self.no_rx:
-            self.finish()
             return True
+
         while True:
-            try:
-                line = io.read_line(self.timeout)
-                self.intersect(line)
-                if len(self.expected) == 0:
-                    self.finish()
-                    return True
-            except Exception as e:
-                for item in self.expected:
-                    loge("Missing: %s"%(item))
-                raise e
-        return False
+            line = io.readline(self.timeout)
+            if line == None:
+                return
+
+            self.intersect(line)
+            if len(self.expected) == 0:
+                return True
+
+        for item in self.expected:
+            loge("Missing: %s"%(item))
     
 class Repeat(AutobotCommand):
     def __init__(self, times, *args):
@@ -86,10 +84,12 @@ class Repeat(AutobotCommand):
     def execute(self, io, context):
         while self.repeat != 0:
             for command in self.commands:
-                if not command.execute(io, context):
+                res = command.execute(io, context)
+                # logi("%s"%(command.get_status_string(res)))
+                if not res:
                     return False
             self.repeat -= 1
-        self.finish()
+
         return True
 
 class Search(AutobotCommand):
@@ -104,18 +104,48 @@ class Search(AutobotCommand):
         self.handler = handler
 
     def execute(self, io, context):
+        start_time = time.time()
         while True:
-            try:
-                line = io.read_line(self.timeout)
-                result = self.pattern.match(line)
-                if result:
-                    self.handler.on_match(result)
-                    self.finish()
-                    return True
-                    break
-            except Exception as e:
-                print e
-                return False
+            line = io.readline(self.timeout)
+            if line == None:
+                break
+            if self.timeout > 0 and (time.time() - start_time > self.timeout):
+                break
+            result = self.pattern.match(line)
+            if result:
+                self.handler.on_match(result)
+                return True
+
+class Conditional(AutobotCommand):
+    NONE = 0
+    ANY = 1
+    ALL = 2
+
+    def __init__(self, conditional_type, *args):
+        super(Conditional, self).__init__(name="Conditional")
+        self.cond = conditional_type
+        self.commands = args
+
+    def execute(self, io, context):
+        pass_num = 0
+        total_commands = len(self.commands)
+        for command in self.commands:
+            res = command.execute(io, context)
+            logi("%s"%(command.get_status_string(res)))
+            if res:
+                pass_num += 1
+            elif self.cond == self.ALL:
+                break
+
+        #any returns true if any condition is true
+        if self.cond == self.NONE:
+            return True
+        elif self.cond == self.ANY and pass_num > 0:
+            return True
+        elif self.cond == self.ALL and pass_num == total_commands:
+            return True
+        else:
+            return False
             
 
 class Delay(AutobotCommand):
@@ -125,7 +155,6 @@ class Delay(AutobotCommand):
 
     def execute(self, io, context):
         time.sleep(self.delay)
-        self.finish()
         return True
            
 class DeviceInfo(AutobotCommand):
@@ -156,7 +185,9 @@ class DeviceInfo(AutobotCommand):
     
     def __get_id(self, io):
         while True:
-            line = io.read_line(10)
+            line = io.readline(10)
+            if line == None:
+                return False
             if self.__parse_id(line):
                 return True
             
@@ -167,7 +198,7 @@ class DeviceInfo(AutobotCommand):
         return template
         
     def __get_auth_token(self):
-        with open("auth.txt", "rU") as fr:
+        with open(os.path.join(PROJECT_ROOT, "assets", "cred", "auth.txt"), "rU") as fr:
             return fr.readline().strip()
     
     def __get_sn(self):
@@ -202,7 +233,6 @@ class DeviceInfo(AutobotCommand):
             return False
         context["id"] = self.id
         context["sn"] = self.sn
-        self.finish()
         return True
 
 class Terminal(AutobotCommand):
@@ -211,10 +241,7 @@ class Terminal(AutobotCommand):
 
     def execute(self, io, context):
         if io.terminal():
-            self.finish()
             return True
-        return False
-
 
         
 class Provision(AutobotCommand):
@@ -232,11 +259,14 @@ class Provision(AutobotCommand):
     def genkey(self, io, context):
         io.write_command("genkey")
         while True:
-            line = io.read_line(10)
+            line = io.readline(10)
+            if line == None:
+                return False
+
             if self.__parse_key(line, context):
                 context["key"] = self.key
-                self.finish()
                 return True
+
         return False
     
     def __post_key(self, sn, key):
@@ -253,10 +283,43 @@ class Provision(AutobotCommand):
     def execute(self, io, context):
         self.genkey(io, context)
         if self.__post_key(context["sn"], context["key"]):
-            self.finish()
             return True
         return False
         
+class Sound(AutobotCommand):
+    def __init__(self, aud, verbose = False):
+        super(Sound, self).__init__(name="Sound")
+        self.aud = aud
+
+    def play_audio(self):
+        CHUNK = 1024
+        try:
+            f = str(self.aud)
+            player = pyaudio.PyAudio()
+            logi("Playing %s"%(f))
+            wf = wave.open(f, 'rb')
+            stream = player.open(
+                    format = player.get_format_from_width(wf.getsampwidth()),
+                    channels = wf.getnchannels(),
+                    rate = wf.getframerate(),
+                    output = True)
+            data = wf.readframes(CHUNK)
+            while data != '':
+                stream.write(data)
+                data = wf.readframes(CHUNK)
+
+            stream.stop_stream()
+            stream.close()
+            player.terminate()
+            return True
+        except Exception as e:
+            return False
+
+    def execute(self, io, context):
+        if self.play_audio():
+            return True
+        else:
+            return False
          
 class Autobot:
     def __init__(self, io, commands, verbose = False):
@@ -265,29 +328,36 @@ class Autobot:
         self.error = None
         self.commands = commands
         self.verbose = verbose
+        self.all_pass = False
         
     def run(self):
         context = {}
+        tests_passed = 0
+        total_tests = len(self.commands)
         try:
             for command in self.commands:
-                if not command.execute(self.io, context):
+                res = command.execute(self.io, context)
+                if self.verbose:
+                    logi("%s"%(command.get_status_string(res)))
+                if res:
+                    tests_passed += 1
+                else:
                     break
+
+            if tests_passed == total_tests:
+                self.app_pass = True
+
         except Exception as e:
             loge("Command Error %s"%(e))
         return self.report_status()
 
     def report_status(self):
-        logi("Result:")
-        allpass = True
-        for command in self.commands:
-            logi("%s"%(command.get_status_string()))
-            if not command.did_pass():
-                allpass = False
-        if allpass:
+        logi("=============Result=============")
+        if self.all_pass:
             logi("!!!PASS!!!")
         else:
             logi("!!!FAIL!!!")
-        return allpass
+        return self.all_pass
 
 """
 demo mode

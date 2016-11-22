@@ -99,25 +99,25 @@ if __name__ == "__main__":
             #32
             Text("cd /RINGTONE", ""),
             Text("ls", ringtone32, 5, fuzzy = True),
-            Delay(1),
+            Delay(1.5),
             Text("cd /SLPTONES", ""),
             Text("ls", slptone32, 5, fuzzy = True),
-            Delay(1),
+            Delay(1.5),
             Text("cd /VOICEUI", ""),
             Text("ls", voice32, 5, fuzzy = True),
-            Delay(1),
+            Delay(1.5),
             #48
             Text("cd /RINGTO48", ""),
             Text("ls", ringtone48, 5, fuzzy = True),
-            Delay(1),
+            Delay(1.5),
             Text("cd /SLPTON48", ""),
             Text("ls", slptone48, 5, fuzzy = True),
-            Delay(1),
+            Delay(1.5),
             Text("cd /VOICE48", ""),
             Text("ls", voice48, 5, fuzzy = True),
-            Delay(1),
+            Delay(1.5),
             #the rest
-            Delay(1),
+            Delay(1.5),
             Provision(),
             Text("^ dfu", "got SYNC_DEVICE_ID", 60, fuzzy = True),
             ]
@@ -126,7 +126,7 @@ if __name__ == "__main__":
             Terminal()
             ]
             
-    bot = Autobot(SenseIO(), commands, verbose = True)
+    bot = Autobot(SenseIO(verbose = True), commands, verbose = True)
     if bot.run():
         sys.exit(0)
     sys.exit(1)

@@ -4,6 +4,7 @@ from serial.tools import miniterm
 from logger import loge, logi, logs
 import os
 import sys
+import time
 
 
 class SenseIO:
@@ -67,24 +68,23 @@ class SenseIO:
                                      bytesize=serial.EIGHTBITS,
                                      stopbits=serial.STOPBITS_ONE,
                                      timeout = 1) 
+                self.port.write("\r\n")
             except Exception as e:
                 loge("Unable to Open Com Port, Error %s"%(e))
                 raise e
 
-    def read_line(self, timeout = 0):
+    def readline(self, timeout = 0):
         line = []
-        t = 0
+        start_time = time.time()
         while True:
+            if timeout > 0 and (time.time() - start_time > timeout):
+                return None
             c = self.port.read()
             if len(c) is 0:
                 if self.sig_abort:
                     return
                 else:
-                    t += 1
-                    if timeout > 0 and t > timeout:
-                        raise TimeoutError("IO Timeout")
-                    else:
-                        continue
+                    continue
             if ord(c) is not ord('\n'):
                 line.append(c)
             else:
@@ -95,7 +95,7 @@ class SenseIO:
         try:
             if len(fmt_cmd) == self.port.write(fmt_cmd):
                 if self.verbose:
-                    logi("Input command (%s) Success"%cmd.rstrip())
+                    logi(">%s"%cmd.rstrip())
                 return True           
         except:
             pass
@@ -129,7 +129,7 @@ def test_port():
         p.abort()
 
     while True and not sig_abort:
-        line = p.read_line()
+        line = p.readline()
         logs(line)
         if "SYNC_DEVICE_ID" in line:
             p.write_command("genkey")
