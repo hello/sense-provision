@@ -29,7 +29,7 @@ class SenseIO:
         if os.name == "nt":
             return [port for port in ports if "COM" in port.device]
         elif os.name == "posix":
-            return [port for port in ports if "serial" in port.device]
+            return [port for port in ports if "serial" or "ttyUSB" in port.device]
         else:
             return []
 

@@ -4,9 +4,9 @@ import re
 import time
 import requests
 import json
+import os
 import pyaudio
 import wave
-import os
 
 
 PROJECT_ROOT = os.path.join(
@@ -287,33 +287,38 @@ class Provision(AutobotCommand):
         return False
         
 class Sound(AutobotCommand):
-    def __init__(self, aud, verbose = False):
+    def __init__(self, aud, verbose = False, mode = "os"):
         super(Sound, self).__init__(name="Sound")
         self.aud = aud
+        self.mode = mode
 
     def play_audio(self):
-        CHUNK = 1024
-        try:
-            f = str(self.aud)
-            player = pyaudio.PyAudio()
-            logi("Playing %s"%(f))
-            wf = wave.open(f, 'rb')
-            stream = player.open(
-                    format = player.get_format_from_width(wf.getsampwidth()),
-                    channels = wf.getnchannels(),
-                    rate = wf.getframerate(),
-                    output = True)
-            data = wf.readframes(CHUNK)
-            while data != '':
-                stream.write(data)
+        f = str(self.aud)
+        if self.mode == "sw":
+            CHUNK = 1024
+            try:
+                player = pyaudio.PyAudio()
+                logi("Playing %s"%(f))
+                wf = wave.open(f, 'rb')
+                stream = player.open(
+                        format = player.get_format_from_width(wf.getsampwidth()),
+                        channels = wf.getnchannels(),
+                        rate = wf.getframerate(),
+                        output = True)
                 data = wf.readframes(CHUNK)
+                while data != '':
+                    stream.write(data)
+                    data = wf.readframes(CHUNK)
 
-            stream.stop_stream()
-            stream.close()
-            player.terminate()
+                stream.stop_stream()
+                stream.close()
+                player.terminate()
+                return True
+            except Exception as e:
+                return False
+        elif self.mode == "os":
+            os.system("aplay %s"%(f))
             return True
-        except Exception as e:
-            return False
 
     def execute(self, io, context):
         if self.play_audio():
