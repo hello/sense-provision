@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/python
 from autobot import *
 from serial_io import *
 import os

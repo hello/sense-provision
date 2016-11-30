@@ -5,8 +5,6 @@ import time
 import requests
 import json
 import os
-import pyaudio
-import wave
 
 
 PROJECT_ROOT = os.path.join(
@@ -295,6 +293,8 @@ class Sound(AutobotCommand):
     def play_audio(self):
         f = str(self.aud)
         if self.mode == "sw":
+            import pyaudio
+            import wave
             CHUNK = 1024
             try:
                 player = pyaudio.PyAudio()
