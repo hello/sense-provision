@@ -234,6 +234,14 @@ class DeviceInfo(AutobotCommand):
         context["sn"] = self.sn
         return True
 
+class Flush(AutobotCommand):
+    def __init__(self):
+        super(Flush, self).__init__(name="Flush")
+
+    def execute(self, io, context):
+        io.flush()
+        return True
+
 class Terminal(AutobotCommand):
     def __init__(self):
         super(Terminal, self).__init__(name="Console")
