@@ -32,6 +32,7 @@ totalcounter = Counter()
 
 commands = [
         Text("boot"),
+        Text("loglevel 0x100"),
         Repeat( -1,
             Flush(),
             Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
