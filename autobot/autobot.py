@@ -5,6 +5,7 @@ import time
 import requests
 import json
 import os
+import subprocess
 
 
 PROJECT_ROOT = os.path.join(
@@ -317,7 +318,8 @@ class Sound(AutobotCommand):
             except Exception as e:
                 return False
         elif self.mode == "os":
-            os.system("aplay %s"%(f))
+            # os.system("aplay %s"%(f))
+            subprocess.call(["aplay", f])
             return True
 
     def execute(self, io, context):

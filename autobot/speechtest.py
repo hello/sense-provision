@@ -31,14 +31,16 @@ okcounter = OKCounter()
 totalcounter = Counter()
 
 commands = [
+        Text("^ rst"),
+        Delay(6),
         Text("boot"),
         Repeat( -1,
             Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
             Conditional(Conditional.ANY,
                 totalcounter,
                 Search("OKAY SENSE", handler = okcounter, timeout = 4),
-                Search("stop speech", timeout = 8),
-                # Delay(3.0),
+                # Search("stop speech", timeout = 8),
+                Delay(2.0),
                 ),
             ),
         ]
