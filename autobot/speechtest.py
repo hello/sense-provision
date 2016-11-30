@@ -43,8 +43,16 @@ commands = [
             ),
         ]
 
-Autobot(SenseIO(), commands).run()
-logi("Passed %d Out of %d tests, %f"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100))
+# Autobot(SenseIO(), commands).run()
+
+if totalcounter.count == 0:
+    totalcounter.count = 1
+msg = "Autobot voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
+logi(msg)
+import json
+import requests
+j = json.dumps({"text":msg})
+print requests.post("https://hooks.slack.com/services/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", data = j)
 
 
 
