@@ -1,5 +1,5 @@
 from serial_io import SenseIO
-from logger import loge, logi
+from logger import loge, logi, slack
 import re
 import time
 import requests
