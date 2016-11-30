@@ -31,10 +31,9 @@ okcounter = OKCounter()
 totalcounter = Counter()
 
 commands = [
-        Text("^ rst"),
-        Delay(6),
         Text("boot"),
         Repeat( -1,
+            Flush(),
             Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
             Conditional(Conditional.ANY,
                 totalcounter,
