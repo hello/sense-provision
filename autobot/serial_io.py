@@ -68,7 +68,9 @@ class SenseIO:
                                      bytesize=serial.EIGHTBITS,
                                      stopbits=serial.STOPBITS_ONE,
                                      timeout = 1) 
-                self.port.write("\r\n")
+                # self.port.write("\r\n")
+                self.port.flushInput()
+                self.port.flushOutput()
             except Exception as e:
                 loge("Unable to Open Com Port, Error %s"%(e))
                 raise e
