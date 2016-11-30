@@ -39,7 +39,6 @@ commands = [
             Conditional(Conditional.ANY,
                 totalcounter,
                 Search("OKAY SENSE", handler = okcounter, timeout = 4),
-                # Search("stop speech", timeout = 8),
                 Delay(2.0),
                 ),
             ),
