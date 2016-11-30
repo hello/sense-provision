@@ -43,7 +43,7 @@ commands = [
             ),
         ]
 
-# Autobot(SenseIO(), commands).run()
+Autobot(SenseIO(), commands).run()
 
 if totalcounter.count == 0:
     totalcounter.count = 1
