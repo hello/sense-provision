@@ -1,10 +1,11 @@
 from serial_io import SenseIO
-from logger import loge, logi
+from logger import loge, logi, slack
 import re
 import time
 import requests
 import json
 import os
+import subprocess
 
 
 PROJECT_ROOT = os.path.join(
@@ -233,6 +234,14 @@ class DeviceInfo(AutobotCommand):
         context["sn"] = self.sn
         return True
 
+class Flush(AutobotCommand):
+    def __init__(self):
+        super(Flush, self).__init__(name="Flush")
+
+    def execute(self, io, context):
+        io.flush()
+        return True
+
 class Terminal(AutobotCommand):
     def __init__(self):
         super(Terminal, self).__init__(name="Console")
@@ -317,7 +326,8 @@ class Sound(AutobotCommand):
             except Exception as e:
                 return False
         elif self.mode == "os":
-            os.system("aplay %s"%(f))
+            # os.system("aplay %s"%(f))
+            subprocess.call(["aplay", f])
             return True
 
     def execute(self, io, context):

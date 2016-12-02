@@ -32,19 +32,25 @@ totalcounter = Counter()
 
 commands = [
         Text("boot"),
+        Text("loglevel 0x100"),
         Repeat( -1,
+            Flush(),
             Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
             Conditional(Conditional.ANY,
                 totalcounter,
                 Search("OKAY SENSE", handler = okcounter, timeout = 4),
-                Search("stop speech", timeout = 8),
-                # Delay(3.0),
+                Delay(2.0),
                 ),
             ),
         ]
 
 Autobot(SenseIO(), commands).run()
-logi("Passed %d Out of %d tests, %f"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100))
+
+if totalcounter.count == 0:
+    totalcounter.count = 1
+msg = "Autobot voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
+logi(msg)
+slack(msg)
 
 
 

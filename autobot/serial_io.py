@@ -68,7 +68,7 @@ class SenseIO:
                                      bytesize=serial.EIGHTBITS,
                                      stopbits=serial.STOPBITS_ONE,
                                      timeout = 1) 
-                self.port.write("\r\n")
+                self.flush()
             except Exception as e:
                 loge("Unable to Open Com Port, Error %s"%(e))
                 raise e
@@ -101,6 +101,10 @@ class SenseIO:
             pass
         loge("Input command (%s) Failure"%cmd.rstrip())
         return False
+
+    def flush(self):
+        self.port.flushInput()
+        self.port.flushOutput()
 
     def terminal(self):
         ok = True
