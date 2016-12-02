@@ -6,6 +6,8 @@ import requests
 import json
 import os
 import subprocess
+import threading
+import signal
 
 
 PROJECT_ROOT = os.path.join(
@@ -335,6 +337,54 @@ class Sound(AutobotCommand):
             return True
         else:
             return False
+
+class Server(AutobotCommand):
+    def serve_path(self, path, port):
+        import SimpleHTTPServer
+        import SocketServer
+        os.chdir(path)
+        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("", port), handler)
+        logi("Serving %s at port %d"%(path, port))
+        httpd.serve_forever()
+        logi("Server End %s"%(path))
+
+
+    def __init__(self, path, port):
+        super(Server, self).__init__(name="Server: %s"%(path))
+        self.tid = threading.Thread(target=Server.serve_path, args=(self, path, port))
+        self.tid.daemon = True
+        self.tid.start()
+
+    def execute(self,io, context):
+        return True
+
+    @staticmethod
+    def ip():
+        import netifaces
+        interfaces = netifaces.interfaces()
+        for i in interfaces:
+            if i == 'wlan0':
+                iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
+                if iface != None:
+                    return iface[0]['addr']
+
+    @staticmethod
+    def test():
+        keep = True
+        def signal_handler(signal, frame):
+            global keep
+            logi("signal")
+            keep = False
+
+        signal.signal(signal.SIGINT, signal_handler)
+        f = os.path.join(PROJECT_ROOT, "assets", "audio", "oksense_mono_16k")
+        Server(f, 81)
+        while keep:
+            time.sleep(1)
+        logi("exit")
+      
+
          
 class Autobot:
     def __init__(self, io, commands, verbose = False):
