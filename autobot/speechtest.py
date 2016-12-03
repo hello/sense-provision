@@ -62,11 +62,20 @@ class ServerWalker():
         return name
 
 def test_internal():
-    # internal_test = [
-            # Text("boot"),
-            # Text("loglevel 0x100"),
-            # ]
+    totalcounter = Counter()
     w = ServerWalker(os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))
+    internal_test = [
+            Text("^ bounce", "Freertos", timeout = 10),
+            Text("connect Hello godsavethequeen 2", "IPV4"),
+            Text("loglevel 0x100"),
+            Repeat( -1,
+                Text("x %s $r x"%(w)),
+                Conditional(Conditional.ANY,
+                    totalcounter,
+                    Search("OKAY SENSE", handler = okcounter, timeout = 4),
+                )
+            ),
+        ]
 
 
 if __name__ == "__main__":
