@@ -53,11 +53,22 @@ def test_external():
     logi(msg)
     slack(msg)
 
+class ServerWalker():
+    def __init__(self, root):
+        self.root_files =  iter(["http://"+str(Server.ip()) + "/a/" + f for f in os.listdir(root) if "wav" in f.lower()])
+
+    def __str__(self):
+        name = self.root_files.next()
+        return name
+
 def test_internal():
-    internal_test = [
-            Text("boot"),
-            Text("loglevel 0x100"),
-            ]
+    # internal_test = [
+            # Text("boot"),
+            # Text("loglevel 0x100"),
+            # ]
+    w = ServerWalker(os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))
+
 
 if __name__ == "__main__":
+    # test_internal()
     test_external()
