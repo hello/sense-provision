@@ -30,7 +30,7 @@ class Counter(AutobotCommand):
 okcounter = OKCounter()
 totalcounter = Counter()
 
-commands = [
+external_test = [
         Text("boot"),
         Text("loglevel 0x100"),
         Repeat( -1,
@@ -44,7 +44,7 @@ commands = [
             ),
         ]
 
-Autobot(SenseIO(), commands).run()
+Autobot(SenseIO(), external_test).run()
 
 if totalcounter.count == 0:
     totalcounter.count = 1
@@ -52,5 +52,12 @@ msg = "Autobot voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, tot
 logi(msg)
 slack(msg)
 
+'''
+internal commands time
+'''
 
+internal_test = [
+        Text("boot"),
+        Text("loglevel 0x100"),
 
+        ]
