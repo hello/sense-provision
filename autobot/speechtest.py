@@ -27,37 +27,37 @@ class Counter(AutobotCommand):
         self.count += 1
         return True
 
-okcounter = OKCounter()
-totalcounter = Counter()
+def test_external():
+    okcounter = OKCounter()
+    totalcounter = Counter()
 
-external_test = [
-        Text("boot"),
-        Text("loglevel 0x100"),
-        Repeat( -1,
-            Flush(),
-            Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
-            Conditional(Conditional.ANY,
-                totalcounter,
-                Search("OKAY SENSE", handler = okcounter, timeout = 4),
-                Delay(2.0),
+    external_test = [
+            Text("boot"),
+            Text("loglevel 0x100"),
+            Repeat( -1,
+                Flush(),
+                Sound(FolderWalker( os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))),
+                Conditional(Conditional.ANY,
+                    totalcounter,
+                    Search("OKAY SENSE", handler = okcounter, timeout = 4),
+                    Delay(2.0),
+                    ),
                 ),
-            ),
-        ]
+            ]
 
-Autobot(SenseIO(), external_test).run()
+    Autobot(SenseIO(), external_test).run()
 
-if totalcounter.count == 0:
-    totalcounter.count = 1
-msg = "Autobot voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
-logi(msg)
-slack(msg)
+    if totalcounter.count == 0:
+        totalcounter.count = 1
+    msg = "Autobot voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
+    logi(msg)
+    slack(msg)
 
-'''
-internal commands time
-'''
+def test_internal():
+    internal_test = [
+            Text("boot"),
+            Text("loglevel 0x100"),
+            ]
 
-internal_test = [
-        Text("boot"),
-        Text("loglevel 0x100"),
-
-        ]
+if __name__ == "__main__":
+    test_external()
