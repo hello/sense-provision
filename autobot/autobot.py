@@ -28,7 +28,7 @@ class AutobotCommand(object):
             return "FAIL\t- %s"%(self.name)
 
 class Text(AutobotCommand):
-    def __init__(self, command, expected="", timeout=5, fuzzy=True):
+    def __init__(self, command, expected="", timeout=5, fuzzy=True, verbose = False):
         super(Text, self).__init__(name=command)
         self.command = command
         self.expected =  []
@@ -42,6 +42,7 @@ class Text(AutobotCommand):
              self.no_rx = False   
         self.timeout = timeout
         self.fuzzy = fuzzy
+        self.verbose = verbose
 
     def match(self, expected_line, actual_line):
         if self.fuzzy:
@@ -60,7 +61,10 @@ class Text(AutobotCommand):
         return False
             
     def execute(self, io, context):
-        io.write_command(str(self.command))
+        command = str(self.command)
+        if self.verbose:
+            logi("Writing %s"%(command))
+        io.write_command(command)
         if self.no_rx:
             return True
 
