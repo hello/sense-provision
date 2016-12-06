@@ -55,7 +55,7 @@ def test_external():
 
 class ServerWalker():
     def __init__(self, root):
-        l = ["x http://"+str(Server.ip()) + "/a/" + f +" $r x" for f in os.listdir(root) if "wav" in f.lower()]
+        l = ["x $i"+str(Server.ip()) + "/" + f +" $r v" for f in os.listdir(root) if "wav" in f.lower()]
         self.root_files =  iter(l)
 
     def __str__(self):
@@ -65,20 +65,23 @@ class ServerWalker():
 def test_internal():
     totalcounter = Counter()
     okcounter = OKCounter()
-    w = ServerWalker(os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))
+    server_path = os.path.join(PROJECT_ROOT, "assets", "audio", "oksense")
+    w = ServerWalker(server_path)
     internal_test = [
+            Server(server_path, 80),
             Text("^ bounce", "Freertos", timeout = 10),
             Text("connect Hello godsavethequeen 2", "IPV4"),
             Text("loglevel 0x100"),
             Repeat( -1,
-                Text("x %s $r x"%(w)),
+                Text(w),
+                totalcounter,
                 Conditional(Conditional.ANY,
-                    totalcounter,
-                    Search("OKAY SENSE", handler = okcounter, timeout = 4),
-                )
+                    Search("\[OKSENSE\]", timeout = 20),
+                ),
+                Delay(2.0),
             ),
         ]
-    Autobot(SenseIO(), internal_test).run()
+    Autobot(SenseIO(verbose = True), internal_test, verbose = True).run()
 
 if __name__ == "__main__":
     # test_internal()
