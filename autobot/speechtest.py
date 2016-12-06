@@ -55,7 +55,8 @@ def test_external():
 
 class ServerWalker():
     def __init__(self, root):
-        self.root_files =  iter(["http://"+str(Server.ip()) + "/a/" + f for f in os.listdir(root) if "wav" in f.lower()])
+        l = ["x http://"+str(Server.ip()) + "/a/" + f +" $r x" for f in os.listdir(root) if "wav" in f.lower()]
+        self.root_files =  iter(l)
 
     def __str__(self):
         name = self.root_files.next()
@@ -63,6 +64,7 @@ class ServerWalker():
 
 def test_internal():
     totalcounter = Counter()
+    okcounter = OKCounter()
     w = ServerWalker(os.path.join(PROJECT_ROOT, "assets", "audio", "oksense"))
     internal_test = [
             Text("^ bounce", "Freertos", timeout = 10),
@@ -76,7 +78,7 @@ def test_internal():
                 )
             ),
         ]
-
+    Autobot(SenseIO(), internal_test).run()
 
 if __name__ == "__main__":
     # test_internal()
