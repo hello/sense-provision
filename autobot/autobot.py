@@ -350,9 +350,12 @@ class Server(AutobotCommand):
         handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         httpd = SocketServer.TCPServer(("", port), handler)
         logi("Serving %s at port %d"%(path, port))
-        httpd.serve_forever()
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
         logi("Server End %s"%(path))
-
+        httpd.server_close()
 
     def __init__(self, path, port):
         super(Server, self).__init__(name="Server: %s"%(path))
