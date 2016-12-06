@@ -49,7 +49,7 @@ def test_external():
 
     if totalcounter.count == 0:
         totalcounter.count = 1
-    msg = "Autobot voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
+    msg = "Autobot EXTERNAL voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
     logi(msg)
     slack(msg)
 
@@ -62,10 +62,18 @@ class ServerWalker():
         name = self.root_files.next()
         return name
 
+class OKCounterInternal:
+    def __init__(self):
+        self.passcount = 0
+
+    def on_match(self, match): #match is the regex match object
+        print match.string
+        self.passcount += int(match.group(1))
+
 def test_internal():
     totalcounter = Counter()
-    okcounter = OKCounter()
-    server_path = os.path.join(PROJECT_ROOT, "assets", "audio", "oksense")
+    okcounter = OKCounterInternal()
+    server_path = os.path.join(PROJECT_ROOT, "assets", "audio", "oksense_m16")
     w = ServerWalker(server_path)
     internal_test = [
             Server(server_path, 80),
@@ -76,13 +84,16 @@ def test_internal():
                 Text(w),
                 totalcounter,
                 Conditional(Conditional.ANY,
-                    Search("\[OKSENSE\]", timeout = 20),
+                    Search("\[OKSENSE\]\[(\d*)\]", handler = okcounter, timeout = 20),
                 ),
                 Delay(2.0),
             ),
         ]
-    Autobot(SenseIO(verbose = True), internal_test, verbose = True).run()
+    Autobot(SenseIO(), internal_test).run()
+    msg = "Autobot INTERNAL voice passed %d Out of %d tests, %f %%"%(okcounter.passcount, totalcounter.count, okcounter.passcount * 1.0/totalcounter.count * 100)
+    slack(msg)
+    logi(msg)
 
 if __name__ == "__main__":
-    # test_internal()
     test_external()
+    test_internal()
