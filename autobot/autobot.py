@@ -6,6 +6,8 @@ import requests
 import json
 import os
 import subprocess
+import threading
+import signal
 
 
 PROJECT_ROOT = os.path.join(
@@ -26,7 +28,7 @@ class AutobotCommand(object):
             return "FAIL\t- %s"%(self.name)
 
 class Text(AutobotCommand):
-    def __init__(self, command, expected="", timeout=5, fuzzy=True):
+    def __init__(self, command, expected="", timeout=5, fuzzy=True, verbose = False):
         super(Text, self).__init__(name=command)
         self.command = command
         self.expected =  []
@@ -40,6 +42,7 @@ class Text(AutobotCommand):
              self.no_rx = False   
         self.timeout = timeout
         self.fuzzy = fuzzy
+        self.verbose = verbose
 
     def match(self, expected_line, actual_line):
         if self.fuzzy:
@@ -58,7 +61,10 @@ class Text(AutobotCommand):
         return False
             
     def execute(self, io, context):
-        io.write_command(str(self.command))
+        command = str(self.command)
+        if self.verbose:
+            logi("Writing %s"%(command))
+        io.write_command(command)
         if self.no_rx:
             return True
 
@@ -335,6 +341,57 @@ class Sound(AutobotCommand):
             return True
         else:
             return False
+
+class Server(AutobotCommand):
+    def serve_path(self, path, port):
+        import SimpleHTTPServer
+        import SocketServer
+        os.chdir(path)
+        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("", port), handler)
+        logi("Serving %s at port %d"%(path, port))
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        logi("Server End %s"%(path))
+        httpd.server_close()
+
+    def __init__(self, path, port):
+        super(Server, self).__init__(name="Server: %s"%(path))
+        self.tid = threading.Thread(target=Server.serve_path, args=(self, path, port))
+        self.tid.daemon = True
+        self.tid.start()
+
+    def execute(self,io, context):
+        return True
+
+    @staticmethod
+    def ip():
+        import netifaces
+        interfaces = netifaces.interfaces()
+        for i in interfaces:
+            if i == 'wlan0':
+                iface = netifaces.ifaddresses(i).get(netifaces.AF_INET)
+                if iface != None:
+                    return iface[0]['addr']
+
+    @staticmethod
+    def test():
+        keep = True
+        def signal_handler(signal, frame):
+            global keep
+            logi("signal")
+            keep = False
+
+        signal.signal(signal.SIGINT, signal_handler)
+        f = os.path.join(PROJECT_ROOT, "assets", "audio", "oksense_mono_16k")
+        Server(f, 81)
+        while keep:
+            time.sleep(1)
+        logi("exit")
+      
+
          
 class Autobot:
     def __init__(self, io, commands, verbose = False):
