@@ -122,7 +122,7 @@ class Search(AutobotCommand):
                 return True
 
 class Conditional(AutobotCommand):
-    NONE = 0
+    IGNORE = 0
     ANY = 1
     ALL = 2
 
@@ -143,7 +143,7 @@ class Conditional(AutobotCommand):
                 break
 
         #any returns true if any condition is true
-        if self.cond == self.NONE:
+        if self.cond == self.IGNORE:
             return True
         elif self.cond == self.ANY and pass_num > 0:
             return True
