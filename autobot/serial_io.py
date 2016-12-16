@@ -88,7 +88,10 @@ class SenseIO:
             if ord(c) is not ord('\n'):
                 line.append(c)
             else:
-                return "".join(line).strip()
+                l = "".join(line).strip()
+                if self.verbose:
+                    print "< " + l
+                return l
 
     def write_command(self, cmd):
         fmt_cmd = cmd.rstrip()+"\r\n"
